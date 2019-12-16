@@ -1,0 +1,192 @@
+TP3
+
+Caminos:
+
+    más rápido
+    más barato
+    menor cantidad de escalas
+
+Centralidad:
+
+    Betweennes: cuáles es más frecuente terminar haciendo escalas para poder
+    ir entre cualquier parte del mundo a otra.
+
+bAIRros Airlines:
+
+    Conectar con todos, usando las rutas más baratas posibles.
+
+Viaje alrededor del mundo: 
+
+    Todo el mundo, con:
+                        menor costo posible
+                        menor tiempo posible
+
+    Necesidades de las aerolineas: MEJOR solución y BUENA solución.
+
+Ciudad de origen:
+
+    Se da el origen, recorre N cantidad de ciudades del mundo, vuelve al origen.
+
+Viaje cultural:
+
+    Indicar las ciudades a conocer.
+    Si se desea visitar una antes que otra.
+    
+Mapa:
+
+    Exportar un mapa que permita visualizar las rutas de vuelo.
+
+
+** DATOS DISPONIBLES **
+
+    1. Datos de los aeropuertos de Estados Unidos, así como de más de medio millón de vuelos durante el año 2015.
+
+    2. Parseado de datos, se genera:
+        
+        El archivo aeropuertos.csv con el formato:
+            ciudad,codigo_aeropuerto,latitud,longitud
+
+        El archivo vuelos.csv con el formato:
+            aeropuerto_i,aeropuerto_j,tiempo_promedio,precio,cant_vuelos_entre_aeropuertos
+
+    3. Pruebas rápidas: set de aeropuertos y vuelos inventados.
+
+** ACLARACIONES **
+
+    Una ciudad puede tener uno o más aeropuertos.
+
+** IMPLEMENTACIÓN **
+
+    3 partes:
+                1. TDA GRAFO con sus primitivas
+                2. Biblioteca de funciones de grafos
+                3. FlyCombi (Interfaz con el usuario)
+
+    FlyCombi:
+
+            1. El programa debe recibir por parámetro y cargar en memoria
+                el set de datos ($ ./flycombi aeropuertos.csv vuelos.csv).
+            
+            2. Solicitar el ingreso de comandos por entrada estándar,
+                del estilo <comando> 'parametro'.
+            
+            3. Notar que esto permite tener un archivo de instrucciones
+                a ser ejecutadas (i.e. $ ./flycombi aeropuertos.csv vuelos.csv < entrada.txt).
+
+
+** COMANDOS OBLIGATORIOS **
+
+    1. listar_operaciones.
+        Debe imprimirse una línea por cada comando que esté implementado.
+        Complejidad: O(1).
+
+        // Tener un txt y leer del mismo las operaciones disponibles, imprimiendo en pantalla.
+
+    2. Camino_mas (★)
+
+        Parámetros: barato ó rapido + origen y destino (ciudades, no aeropuertos)
+        Complejidad: Este comando debe ejecutar en O(F*log(A)), siendo A la cantidad de aeropuertos,
+            y F la cantidad de vuelos entre aeropuertos (sin contar frecuencia). 
+
+    3. camino_escalas (*)
+        Camino con menor cantidad de escalas.
+        Parámetros: origen y destino.
+        Este comando debe ejecutar en O(F+A), siendo A la cantidad de aeropuertos,
+        y F la cantidad de vuelos entre aeropuertos (sin contar frecuencia).
+
+    4. Aeropuertos más importantes 
+
+        * A tener en cuenta no sólo centralidad sino FRECUENCIA de vuelos *
+
+        Betweeness Centrality (***)
+            Parámetros: N cantidad de aerop más importantes a mostrar.
+            Complejidad: O(A * F*Log(A)).
+        
+        Betweeness Centrality Aproximada (*)
+            Parámetros: N cantidad de aerop más importantes a mostrar.
+            Complejidad: O(A + F).
+
+        Pagerank (**)
+            Parámetros: N cantidad de aerop más importantes a mostrar.
+            Complejidad: O(K*(A+F)), K cantidad de iteraciones.
+
+    5. Optimización de rutas para nueva aerolínea (**)
+
+        Comando: nueva_aerolinea.
+        Parámetros: ruta, ruta del archivo de salida.
+
+        exportar un archivo con las rutas que permitan implementar
+        una nueva aerolínea tal que se pueda comunicar a todos los aeropuertos
+        (en esta primera iteración, sólo de Estados Unidos) con dicha aerolínea,
+        pero que el costo total de la licitación de las rutas aéreas sea mínima.
+        Se considera que el costo de las rutas es proporcional al costo de los pasajes,
+        por lo que se puede trabajar directamente con dicho costo.
+        Se busca que la nueva aerolínea pueda llegar a todos los aeropuertos de alguna forma.
+        La salida de este comando debe ser un archivo con el mismo formato del archivo vuelos.csv,
+        pero únicamente con las rutas de vuelo a utilizar por ésta aerolínea.
+
+    6. Recorrer el mundo, de forma óptima (***)
+
+        Comando: recorrer_mundo.
+        Parámetros: origen, ciudad desde la que se parte para comenzar el recorrido.
+
+        nos devuelve una lista en orden de cómo debemos movernos por el mundo para visitar
+        todas las ciudades del mundo, demorando lo menos posible. Podemos volver a usar un
+        aeropuerto ya usado, u otro de alguna ciudad ya visitada, si eso mejora la duración de
+        nuestro viaje.
+
+    7. Recorrer el mundo, de forma aproximada (*)
+
+        Comando: recorrer_mundo_aprox
+        Parámetros: origen, ciudad desde la que se parte para comenzar el recorrido.
+
+        Nos devuelve una lista en orden de cómo debemos movernos por el mundo para
+        visitar todas las ciudades del mundo, demorando aproximadamente lo menos posible.
+        Podemos volver a usar un aeropuerto ya usado, u otro de alguna ciudad ya visitada,
+        si eso mejora la duración de nuestro viaje.
+
+    8. Viaje de N lugares (***)
+
+        Comando: vacaciones
+        Parámetros: origen, y n.
+
+        Utilidad: Obtener algún recorrido que comience en origen y que termine en
+        origen también, de largo n (sin contar la última vuelta al origen).
+        No debe pasarse por un aeropuerto más de una vez (salvo el origen,
+        cuando volvemos a éste). En caso de no encontrar un recorrido de dicho largo
+        que vuelva luego al origen, imprimir "No se encontro recorrido".
+
+        // backtracking ?
+
+    9. Itinerario cultural (**)
+
+        Comando: itinerario
+        Parámetros: ruta, la ruta el archivo del itinerario.
+        Utilidad: El archivo de ruta tiene el formato:
+
+          ciudad_1,ciudad_2,ciudad_3, ...,ciudad_N
+          ciudad_i,ciudad_j
+
+        Imprimir el orden en el que deben visitarse dichas ciudades.
+        Imprimir el camino mínimo en tiempo o escalas (según lo que se haya implementado en ese caso) a realizar.
+
+    10. Exportar a archivo KML (*)
+
+        Comando: exportar_kml.
+        Parámetros: archivo.
+
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+

@@ -75,7 +75,6 @@ def dijkstra(grafo, origen):    # .Camino mínimo
     q = []
     heappush(q, (distancia[origen], origen))
 
-<<<<<<< HEAD
     while len(q) > 0:
         v = heappop(q)
         for w in grafo.obtener_adyacentes(v):
@@ -85,33 +84,3 @@ def dijkstra(grafo, origen):    # .Camino mínimo
                 heappush(q, (distancia[w], w))
     
     return padre, distancia
-=======
-def dijkstra(graph, start, destination1, destination2):
-    """ Recibe un vertice de origen y dos vertices de destino y devuelve una tupla de tuplas del estilo:
-    ((camino_hasta_destino1, distancia1), (camino_hasta_destino2, distancia2))"""
-
-    parents = {start: None}
-    visited = {}
-    distances = {vertex: float('inf') for vertex in graph}
-    distances[start] = 0
-    to_visit = []
-    heappush(to_visit, (0, start))
-    # Las tuplas se comparan por su primer elemento, entonces si guardo en el heap tuplas del estilo:
-    # (distancia_hasta_el_vertice, vertice) como es de minimos mantendra al tope el vertice con distancia minima
-
-    while len(to_visit) > 0 and not (destination1 in visited and destination2 in visited):
-        actual = heappop(to_visit)
-        if actual[1] in visited:
-            continue
-        visited[actual[1]] = True
-
-        for adjacent in graph.get_adjacents(actual[1]):
-            if (distances[actual[1]] + graph.get_weight(actual[1], adjacent)) < distances[adjacent]:
-                distances[adjacent] = distances[actual[1]] + \
-                    graph.get_weight(actual[1], adjacent)
-                parents[adjacent] = actual[1]
-            heappush(to_visit, (distances[adjacent], adjacent))
-
-    return (build_path(parents, destination1), distances[destination1]), \
-           (build_path(parents, destination2), distances[destination2])
->>>>>>> 5de0d1166cfb2d1c7b6202190b497beeaab5e797

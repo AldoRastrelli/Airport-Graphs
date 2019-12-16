@@ -1,46 +1,47 @@
 from collections import defaultdict
 
 
-class Graph:
-    def __init__(self, vertex_list=[]):
-        self.vertex = defaultdict(dict)
-        for v in vertex_list:
-            self.add_vertex(v)
+class Grafo:
+    def __init__(self, lista_vertices=[]):
+        self.vertices = defaultdict(dict)
+        for v in lista_vertices:
+            self.agregar_vertice(v)
 
-    def add_vertex(self, v):
-        if v in self.vertex:
-            print("El vertice ya ha sido agregado")
+    def agregar_vertice(self, v):
+        if v in self.vertices:
+            return
         else:
-            self.vertex[v] = {}
+            self.vertices[v] = {}
 
-    def add_edge(self, v1, v2, weight=0):
-        self.vertex[v1][v2] = weight
-        self.vertex[v2][v1] = weight
+    def agregar_arista(self, v1, v2, peso=0):
+        self.vertices[v1][v2] = peso
+        self.vertices[v2][v1] = peso
 
-    def get_vertex(self):
-        return list(self.vertex)
+    def obtener_vertices(self):
+        return list(self.vertices)
 
-    def get_adjacents(self, v):
-        if v not in self.vertex:
-            print("El vertice no existe")
+    def obtener_adyacentes(self, v):
+        if v not in self.vertices:
             return []
         else:
-            return list(self.vertex[v])
+            return list(self.vertices[v])
 
-    def get_weight(self, v1, v2):
-        if (v1 not in self.vertex) or (v2 not in self.vertex):
-            print("Al menos uno de los vertices no existe")
+    def obtener_peso(self, v1, v2):
+        if (v1 not in self.vertices) or (v2 not in self.vertices):
+            return None
+        if (v1 not in obtener_adyacentes(self,v2)) or (v2 not in obtener_adyacentes(self,v1)):
+            return None
         else:
-            return self.vertex[v1][v2]
+            return self.vertices[v1][v2]
 
     def __contains__(self, v):
-        return v in self.vertex
+        return v in self.vertices
 
     def __str__(self):
-        return str(self.vertex)
+        return str(self.vertices)
 
     def __iter__(self):
-        return iter(self.vertex)
+        return iter(self.vertices)
 
     def __len__(self):
-        return len(self.vertex)
+        return len(self.vertices)

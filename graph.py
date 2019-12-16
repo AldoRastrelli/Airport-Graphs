@@ -2,8 +2,10 @@ from collections import defaultdict
 
 
 class Graph:
-    def __init__(self):
+    def __init__(self, vertex_list=[]):
         self.vertex = defaultdict(dict)
+        for v in vertex_list:
+            self.add_vertex(v)
 
     def add_vertex(self, v):
         if v in self.vertex:
@@ -12,9 +14,11 @@ class Graph:
             self.vertex[v] = {}
 
     def add_edge(self, v1, v2, weight=0):
-
         self.vertex[v1][v2] = weight
         self.vertex[v2][v1] = weight
+
+    def get_vertex(self):
+        return list(self.vertex)
 
     def get_adjacents(self, v):
         if v not in self.vertex:
@@ -33,10 +37,10 @@ class Graph:
         return v in self.vertex
 
     def __str__(self):
-        return self.vertex
+        return str(self.vertex)
 
     def __iter__(self):
         return iter(self.vertex)
 
     def __len__(self):
-        return self.vertex
+        return len(self.vertex)

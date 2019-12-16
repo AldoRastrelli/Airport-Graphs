@@ -15,7 +15,7 @@ def bfs(graph, origin, destination1, destination2):
     parents[origin] = None
     visited[origin] = True
 
-    while not to_visit.empty():
+    while not to_visit.empty() and not (destination1 in visited and destination2 in visited):
         actual = to_visit.get()
         for adjacent in graph.get_adjacents(actual):
             if adjacent not in visited:
@@ -52,7 +52,7 @@ def dijkstra(graph, start, destination1, destination2):
     # Las tuplas se comparan por su primer elemento, entonces si guardo en el heap tuplas del estilo:
     # (distancia_hasta_el_vertice, vertice) como es de minimos mantendra al tope el vertice con distancia minima
 
-    while len(to_visit) > 0:
+    while len(to_visit) > 0 and not (destination1 in visited and destination2 in visited):
         actual = heappop(to_visit)
         if actual[1] in visited:
             continue
@@ -60,7 +60,8 @@ def dijkstra(graph, start, destination1, destination2):
 
         for adjacent in graph.get_adjacents(actual[1]):
             if (distances[actual[1]] + graph.get_weight(actual[1], adjacent)) < distances[adjacent]:
-                distances[adjacent] = distances[actual[1]] + graph.get_weight(actual[1], adjacent)
+                distances[adjacent] = distances[actual[1]] + \
+                    graph.get_weight(actual[1], adjacent)
                 parents[adjacent] = actual[1]
             heappush(to_visit, (distances[adjacent], adjacent))
 

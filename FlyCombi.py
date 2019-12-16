@@ -13,8 +13,10 @@ def main():
     grafo_tiempos, grafo_precios, grafo_frecuencias = generar_grafos(
         aeropuertos, vuelos)
 
-    for comando in sys.stdin:
-
+    # comando = input("Ingrese un comando ó 0 para salir:\n")
+    # while comando != 0 :
+    for comando in sys.stdin: """no es necesario quizás laburar con el stdin, tenés input()"""
+    
         comando = comando.rstrip('\n')
 
         if comando == "listar_operaciones":
@@ -23,5 +25,5 @@ def main():
         elif comando not in OPERACIONES:
             print("comando inválido")
 
-
+        # comando = input("Ingrese un comando ó 0 para salir:\n")
 main()

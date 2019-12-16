@@ -29,11 +29,8 @@ def generar_grafos(archivo_aeropuertos, archivo_vuelos):
     return grafo_tiempos, grafo_precios, grafo_frecuencias
 
 
-def imprimir_camino(camino):
-    for i in range(len(camino)-1):
-        print(camino[i], end=' -> ')
-    if camino:
-        print(camino[-1])
+def imprimir_camino(camino, separador):
+    print(separador.join(camino))
 
 
 def listar_operaciones(operaciones):
@@ -59,4 +56,4 @@ def camino_minimo(aeropuertos, origenes, destinos, pesado):  # camino_mas camino
                 distancia_min = distancia
                 camino_min = camino
 
-    imprimir_camino(camino_min)
+    imprimir_camino(camino_min," -> ")

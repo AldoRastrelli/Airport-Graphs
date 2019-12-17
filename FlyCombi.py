@@ -10,18 +10,22 @@ def main():
     aeropuertos = sys.argv[1]
     vuelos = sys.argv[2]
 
-    grafo_tiempos, grafo_precios, grafo_frecuencias = generar_grafos(
-        aeropuertos, vuelos)
+    caminos_min_precio = "cmprecio.json"
+    caminos_min_tiempo = "cmtiempo.json"
+    ciudades = {}
+    grafo_aeropuertos = Graph()
+
+    procesar_archivos(aeropuertos,vuelos,grafo_aeropuertos,ciudades)
 
     for comando in sys.stdin:
-
         comando = comando.rstrip('\n')
 
         if comando == "listar_operaciones":
             listar_operaciones(OPERACIONES)
-
-        elif comando not in OPERACIONES:
-            print("comando inválido")
-
-
+        else:
+            try:
+                operacion, parametros = formatear_comando(comando)
+                ejecutar_comando(operacion,parametros)
+            except:
+                print("comando erróneo")
 main()

@@ -4,6 +4,10 @@ from caminos_minimos import *
 import csv
 
 
+def ejecutar_comando(operacion, parametros):
+    pass
+
+
 def formatear_comando(comando):
     comandos = comando.split(',')
     long = len(comandos)
@@ -37,12 +41,9 @@ def formatear_comando(comando):
     raise Exception
 
 
-def generar_grafos(archivo_aeropuertos, archivo_vuelos, ciudades):
+def procesar_archivos(archivo_aeropuertos, archivo_vuelos, grafo_aeropuertos, ciudades):
     with open(archivo_aeropuertos) as aeropuertos:
         aeropuertos = csv.reader(aeropuertos)
-        grafo_tiempos = Graph()
-        grafo_precios = Graph()
-        grafo_frecuencias = Graph()
 
         for ciudad, codigo_aeropuerto, latitud, longitud in aeropuertos:
             if ciudad in ciudades:
@@ -51,19 +52,14 @@ def generar_grafos(archivo_aeropuertos, archivo_vuelos, ciudades):
                 ciudades[ciudad] = {codigo_aeropuerto}
             aeropuerto = Aeropuerto(
                 codigo_aeropuerto, ciudad, float(latitud), float(longitud))
-            grafo_tiempos.add_vertex(aeropuerto)
-            grafo_precios.add_vertex(aeropuerto)
-            grafo_frecuencias.add_vertex(aeropuerto)
+            grafo_aeropuertos.add_vertex(aeropuerto)
 
     with open(archivo_vuelos) as vuelos:
         vuelos = csv.reader(vuelos)
 
         for origen, destino, tiempo, precio, cant_vuelos in vuelos:
-            grafo_tiempos.add_edge(origen, destino, float(tiempo))
-            grafo_precios.add_edge(origen, destino, float(precio))
-            grafo_frecuencias.add_edge(origen, destino, float(cant_vuelos))
-
-    return grafo_tiempos, grafo_precios, grafo_frecuencias
+            peso = float(tiempo), float(precio), float(cant_vuelos)
+            grafo_aeropuertos.add_edge(origen, destino, peso)
 
 
 def imprimir_camino(camino, separador):

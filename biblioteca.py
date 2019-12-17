@@ -1,7 +1,40 @@
-from graph import Graph
+from grafo import Graph
 from aeropuerto import Aeropuerto
-from shortest_paths import *
+from caminos_minimos import *
 import csv
+
+
+def formatear_comando(comando):
+    comandos = comando.split(',')
+    long = len(comandos)
+    operacion = comandos[0]
+    parametros = []
+
+    if long == 3:
+        if operacion in {"camino_mas rapido", "camino_mas barato"}:
+            operacion, modo = operacion.split()
+            return operacion, [modo, comandos[1], comandos[2]]
+
+    elif long == 2:
+        segundo_parametro = comandos[1]
+        comandos = operacion.split()
+        operacion = comandos[0]
+        primer_parametro = " ".join(comandos[1:])
+
+        return operacion, [primer_parametro, segundo_parametro]
+
+    elif long == 1:
+        comandos = comandos[0].split()
+        operacion = comandos[0]
+
+        if operacion in {"itinerario", "exportar_kml", "centralidad", "centralidad_aprox", "nueva_aerolinea"}:
+            return operacion, [comandos[1]]
+
+        elif operacion in {"recorrer_mundo", "recorrer_mundo_aprox"}:
+            ciudad = " ".join(comandos[1:])
+            return operacion, [ciudad]
+
+    raise Exception
 
 
 def generar_grafos(archivo_aeropuertos, archivo_vuelos, ciudades):
@@ -49,7 +82,8 @@ def camino_minimo(aeropuertos, origenes, destinos, pesado):  # camino_mas camino
 
     for origen in origenes:
         for destino in destinos:
-            camino_distancia = algoritmo(aeropuertos, origen, destino, destino)[0]
+            camino_distancia = algoritmo(
+                aeropuertos, origen, destino, destino)[0]
 
             if pesado:
                 camino, distancia = camino_distancia
@@ -60,4 +94,4 @@ def camino_minimo(aeropuertos, origenes, destinos, pesado):  # camino_mas camino
                 distancia_min = distancia
                 camino_min = camino
 
-    imprimir_camino(camino_min," -> ")
+    imprimir_camino(camino_min, " -> ")

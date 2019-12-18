@@ -121,3 +121,40 @@ def itinerario_cultural(archivo_itinerario, aeropuertos, caminos_minimos):
         camino_min = camino_minimo(
             grafo_ciudades, aeropuertos, caminos_minimos, origen, destino, False)
         imprimir_camino(camino_min, ' -> ')
+
+
+def exportar_kml(archivo, camino):
+    inicio = '''<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document>
+        <name>KML TP3</name>'''
+    fin = '''
+    <Document>\n</kml>'''
+
+    with open(archivo, 'w') as kml:
+        kml.write(inicio)
+
+        for aeropuerto in camino:
+            lugar = f'''
+        <Placemark>
+            <name>{aeropuerto}</name>
+            <Point>
+                <coordinates>{aeropuerto.get_longitud()}, {aeropuerto.get_latitud()}</coordinates>
+            </Point>
+        </Placemark>
+        '''
+            kml.write(lugar)
+
+        for i in range(len(camino)-1):
+            origen = camino[i]
+            destino = camino[i+1]
+            recorrido = f'''
+        <Placemark>
+            <LineString>
+                <coordinates>{origen.get_longitud()}, {origen.get_latitud()} {destino.get_longitud()}, {destino.get_latitud()}</coordinates>
+            </LineString>
+        </Placemark>
+        '''
+            kml.write(recorrido)
+
+        kml.write(fin)
+    print("OK")

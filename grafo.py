@@ -1,3 +1,4 @@
+from random import sample
 from collections import defaultdict
 
 
@@ -31,12 +32,15 @@ class Grafo:
     def obtener_peso(self, v1, v2):
         if (v1 not in self.vertices) or (v2 not in self.vertices):
             return None
-        if (v2 not in obtener_adyacentes(self,v1)):
+        if (v2 not in self.obtener_adyacentes(v1)):
             return None
-        if (not self.dirigido) and (v1 not in obtener_adyacentes(self,v2)):
+        if (not self.dirigido) and (v1 not in self.obtener_adyacentes(v2)):
             return None
         else:
             return self.vertices[v1][v2]
+
+    def vertice_aleatorio(self):
+        return sample(self.obtener_vertices(),1)[0]
 
     def __contains__(self, v):
         return v in self.vertices

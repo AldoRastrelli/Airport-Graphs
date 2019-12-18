@@ -1,4 +1,5 @@
 from grafo import Grafo
+from heapq import *
 from queue import Queue
 
 
@@ -32,3 +33,29 @@ def orden_topologico(grafo):
                 q.put(w)
 
     return orden if len(orden) == len(grafo) else None
+
+
+def prim(grafo):
+    v = grafo.vertice_aleatorio()
+    visitados = {v}
+    q = []
+
+    for w in grafo.obtener_adyacentes(v):
+        peso = grafo.obtener_peso(v, w)
+        heappush(q, (peso, v, w))
+
+    arbol = Grafo(grafo.obtener_vertices())
+
+    while q:
+        peso, v, w = heappop(q)
+        if w in visitados:
+            continue
+
+        arbol.agregar_arista(v, w, peso)
+        visitados.add(w)
+
+        for x in grafo.obtener_adyacentes(w):
+            if x not in visitados:
+                peso = grafo.obtener_peso(w, x)
+                heappush(q, (peso, w, x))
+    return arbol

@@ -16,3 +16,9 @@ class Aeropuerto:
 
     def __hash__(self):
         return hash(self.codigo)
+    
+    def get_latitud(self):
+        return self.latitud
+
+    def get_longitud(self):
+        return self.longitud

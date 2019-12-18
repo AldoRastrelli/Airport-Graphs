@@ -10,12 +10,13 @@ def main():
     aeropuertos = sys.argv[1]
     vuelos = sys.argv[2]
 
-    caminos_min_precio = "cmprecio.json"
-    caminos_min_tiempo = "cmtiempo.json"
-    ciudades = {}
-    grafo_aeropuertos = Graph()
+    caminos_minimos = {"escalas": "cmescalas.json",
+                       "precio": "cmprecio.json", "tiempo": "cmtiempo.json"}
 
-    procesar_archivos(aeropuertos, vuelos, grafo_aeropuertos, ciudades)
+    aeropuertos_por_ciudad = {}
+    grafo_aeropuertos = Grafo()
+
+    procesar_archivos(aeropuertos, vuelos, grafo_aeropuertos, aeropuertos_por_ciudad)
 
     for comando in sys.stdin:
         comando = comando.rstrip('\n')
@@ -25,7 +26,7 @@ def main():
         else:
             try:
                 operacion, parametros = formatear_comando(comando)
-                ejecutar_comando(operacion, parametros)
+                ejecutar_comando(operacion, parametros, caminos_minimos)
             except:
                 print("comando erróneo")
 

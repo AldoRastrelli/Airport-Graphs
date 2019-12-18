@@ -2,7 +2,7 @@ from collections import defaultdict
 
 
 class Grafo:
-    def __init__(self, dirigido=True, lista_vertices=[]):
+    def __init__(self, dirigido=False, lista_vertices=[]):
         self.vertices = defaultdict(dict)
         self.dirigido = dirigido
         for v in lista_vertices:
@@ -16,7 +16,7 @@ class Grafo:
 
     def agregar_arista(self, v1, v2, peso=0):
         self.vertices[v1][v2] = peso
-        if self.dirigido:
+        if not self.dirigido:
             self.vertices[v2][v1] = peso
 
     def obtener_vertices(self):
@@ -33,7 +33,7 @@ class Grafo:
             return None
         if (v2 not in obtener_adyacentes(self,v1)):
             return None
-        if (self.dirigido) and (v1 not in obtener_adyacentes(self,v2)):
+        if (not self.dirigido) and (v1 not in obtener_adyacentes(self,v2)):
             return None
         else:
             return self.vertices[v1][v2]

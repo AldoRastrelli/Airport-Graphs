@@ -101,3 +101,23 @@ def camino_minimo(grafo, aeropuertos, caminos, origen, destino, pesado):
         json.dump(caminos_calculados, caminos)
 
     return camino_min
+
+
+def itinerario_cultural(archivo_itinerario, aeropuertos, caminos_minimos):
+    with open(archivo_itinerario) as itinerario:
+        itinerario = csv.reader(itinerario)
+
+        ciudades = next(itinerario)
+        grafo_ciudades = Grafo(True, ciudades)
+
+        for ciudad_a, ciudad_b in itinerario:
+            grafo_ciudades.agregar_arista(ciudad_a, ciudad_b)
+
+    orden = orden_topologico(grafo_ciudades)
+    imprimir_camino(orden, ', ')
+
+    for i in range(len(orden)-1):
+        origen, destino = orden[i], orden[i+1]
+        camino_min = camino_minimo(
+            grafo_ciudades, aeropuertos, caminos_minimos, origen, destino, False)
+        imprimir_camino(camino_min, ' -> ')

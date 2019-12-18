@@ -1,6 +1,7 @@
 from grafo import Grafo
 from aeropuerto import Aeropuerto
 from caminos_minimos import *
+from biblioteca_grafo import *
 import csv
 import json
 
@@ -157,4 +158,18 @@ def exportar_kml(archivo, camino):
             kml.write(recorrido)
 
         kml.write(fin)
+    print("OK")
+
+
+def nueva_aerolinea(archivo, grafo):
+    mst = prim(grafo, True)
+
+    with open(archivo, 'w') as ruta:
+        ruta = csv.writer(ruta)
+
+        for origen in mst:
+            for destino in mst.obtener_adyacentes(origen):
+                peso = mst.obtener_peso(origen, destino)
+                ruta.writerow([origen, destino, peso])
+
     print("OK")

@@ -1,10 +1,6 @@
-from queue import Queue
-from heapq import heappush
-from heapq import heappop
-from grafo import obtener_adyacentes
-from grafo import obtener_vertices
-from grafo import obtener_peso
-from grafo import Grafo
+from queue import *
+from heapq import *
+from grafo import *
 
 
 def bfs(grafo, origen):
@@ -14,19 +10,9 @@ def bfs(grafo, origen):
     orden = {}
     q = Queue()
 
-<<<<<<< HEAD
     visitados.add(orden)
     padre[origen] = None
     orden[origen] = 0
-=======
-    while not to_visit.empty() and not (destination1 in visited and destination2 in visited):
-        actual = to_visit.get()
-        for adjacent in graph.get_adjacents(actual):
-            if adjacent not in visited:
-                to_visit.put(adjacent)
-                parents[adjacent] = actual
-                visited[adjacent] = True
->>>>>>> 5de0d1166cfb2d1c7b6202190b497beeaab5e797
 
     q.put(origen)
 
@@ -57,13 +43,13 @@ def recorrido_dfs(grafo):
 
 def dfs(grafo, v, visitados, padre, orden):
     visitados.add(v)
-    for w in grafo.obtener_adyacentes():
+    for w in grafo.obtener_adyacentes(v):
         if w not in visitados:
             padre[w] = v
             orden[w] = orden[v] +1
             dfs(grafo,w,visitados,orden,padre)
 
-def dijkstra(grafo, origen):    # .Camino mínimo
+def dijkstra(grafo, origen):    # Camino mínimo
     
     distancia = {}
     padre = {}
@@ -73,7 +59,7 @@ def dijkstra(grafo, origen):    # .Camino mínimo
     distancia[origen] = 0
     padre[origen] = None
     q = []
-    heappush(q, (distancia[origen], origen))
+    heapq.heappush(q, (distancia[origen], origen))
 
     while len(q) > 0:
         v = heappop(q)
@@ -81,6 +67,6 @@ def dijkstra(grafo, origen):    # .Camino mínimo
             if distancia[v] + grafo.obtener_peso(v, w) < distancia[w]:
                 distancia[w] = distancia[v] + grafo.obtener_peso(v, w)
                 padre[w] = v
-                heappush(q, (distancia[w], w))
+                heapq.heappush(q, (distancia[w], w))
     
     return padre, distancia

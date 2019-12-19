@@ -7,17 +7,22 @@ OPERACIONES = {"camino_mas", "camino_escalas", "centralidad_aprox", "pagerank", 
 
 
 def main():
-    aeropuertos = sys.argv[1]
-    vuelos = sys.argv[2]
+    archivo_aeropuertos = sys.argv[1]
+    archivo_vuelos = sys.argv[2]
 
     caminos_minimos = {"escalas": "cmescalas.json",
                        "precio": "cmprecio.json", "tiempo": "cmtiempo.json"}
 
+    generar_archivos_cm(caminos_minimos) #comentar para pruebas mas rapidas
+
+    aeropuertos = {}
     aeropuertos_por_ciudad = {}
     grafo_aeropuertos = Grafo()
 
-    procesar_archivos(aeropuertos, vuelos, grafo_aeropuertos,
-                      aeropuertos_por_ciudad)
+    procesar_archivos(archivo_aeropuertos, archivo_vuelos,
+                      grafo_aeropuertos, aeropuertos, aeropuertos_por_ciudad)
+
+    camino_anterior = []
 
     for comando in sys.stdin:
         comando = comando.rstrip('\n')
@@ -31,8 +36,12 @@ def main():
                 if operacion not in OPERACIONES:
                     raise Exception
 
-                ejecutar_comando(operacion, parametros, grafo_aeropuertos,
-                                 aeropuertos_por_ciudad, caminos_minimos)
+                if operacion == "exportar_kml":
+                    parametros.extend([camino_anterior,aeropuertos])
+
+                camino_anterior = ejecutar_comando(
+                    operacion, parametros, grafo_aeropuertos, aeropuertos_por_ciudad, caminos_minimos)
+
             except Exception as e:
                 print(f"comando erróneo: '{comando}'")
                 raise(e)

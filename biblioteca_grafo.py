@@ -32,6 +32,7 @@ def orden_topologico(grafo):
             if grados[w] == 0:
                 q.put(w)
 
+
     return orden if len(orden) == len(grafo) else None
 
 

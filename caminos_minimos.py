@@ -18,7 +18,7 @@ def construir_camino(padres, orden, destino):
     return camino, orden[destino]
 
 
-def bfs(grafo, origen, destino):
+def bfs(grafo, origen, destino=None):
     visitados = set()
     padre = {}
     orden = {}
@@ -30,7 +30,9 @@ def bfs(grafo, origen, destino):
 
     q.put(origen)
 
-    while not q.empty() and destino not in visitados:
+    while not q.empty():
+        if destino and destino in visitados:
+            break
         v = q.get()
         for w in grafo.obtener_adyacentes(v):
             if w not in visitados:
@@ -64,7 +66,7 @@ def dfs(grafo, v, visitados, padre, orden):
             dfs(grafo, w, visitados, orden, padre)
 
 
-def dijkstra(grafo, origen, destino, peso=0):    # .Camino mínimo
+def dijkstra(grafo, origen, destino=None, peso=0):    # .Camino mínimo
     distancia = {}
     padre = {}
     for v in grafo.obtener_vertices():
@@ -77,7 +79,7 @@ def dijkstra(grafo, origen, destino, peso=0):    # .Camino mínimo
 
     while len(q) > 0:
         v = heappop(q)[1]
-        if v == destino:
+        if destino and v == destino:
             break
         for w in grafo.obtener_adyacentes(v):
             if distancia[v] + grafo.obtener_peso(v, w)[peso] < distancia[w]:

@@ -5,7 +5,7 @@ from collections import defaultdict
 class Grafo:
     def __init__(self, dirigido=False, lista_vertices=[]):
         self.vertices = defaultdict(dict)
-        self.grados = defaultdict(dict) # grado de entrada + salida, si es dirigido
+        self.grados = defaultdict(dict) # grado de entrada únicamente si es dirigido
         self.dirigido = dirigido
         for v in lista_vertices:
             self.agregar_vertice(v)
@@ -21,10 +21,11 @@ class Grafo:
         if not self.dirigido:
             self.vertices[v2][v1] = peso
 
-        self.grado[v1] += peso
         self.grado[v2] += peso
         if self.dirigido:
             self.vertices[v1][v2] = -peso
+        else:
+            self.grado[v1] += peso
 
     def obtener_vertices(self):
         return list(self.vertices)

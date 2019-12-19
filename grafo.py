@@ -1,4 +1,4 @@
-from random import sample
+from random import choice
 from collections import defaultdict
 
 
@@ -17,7 +17,8 @@ class Grafo:
             self.vertices[v] = {}
             self.grados[v] = 0
 
-    def agregar_arista(self, v1, v2, peso=0):
+    def agregar_arista(self, v1, v2, peso=(0)):
+        self.vertices[v1][v2] = peso
         if not self.dirigido:
             self.vertices[v2][v1] = peso
 
@@ -51,7 +52,7 @@ class Grafo:
         return grafo.grados[v]
 
     def vertice_aleatorio(self):
-        return sample(self.obtener_vertices(),1)[0]
+        return choice(self.obtener_vertices())
 
     def __contains__(self, v):
         return v in self.vertices

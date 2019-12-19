@@ -1,10 +1,13 @@
 import csv
 import json
+import random
 from caminos_minimos import *
 from biblioteca_grafo import *
 from heapq import *
 from grafo import Grafo
 from aeropuerto import Aeropuerto
+MAX_ITER_PR 100
+D 0.85
 
 """""""""""""""""""""""""""
     Comandos pedidos
@@ -30,6 +33,18 @@ def betweeness_centrality_aproximada(grafo, n):             # O(V+E) total
     lista_centralidad = pasar_dic_a_lista(dic_centralidad)  # O(V)
     lista_centralidad.sort(reverse=True)                  # O(V)
     imprimir_lista(lista_centralidad)                   # O(V)
+
+def pagerank(grafo):
+
+    vertices_aleatorios = generar_orden_aleatorio(grafo)
+    pr_dic = {}
+
+    for v in vertices_aleatorios:
+        pr_dic[v] = 0
+    iteraciones = 0
+    cant_vertices = len(vertices_aleatorios)
+
+    return _pagerank(grafo,vertices_aleatorios,cant_vertices,iteraciones,pr_dic)
 
 
 def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos, caminos_minimos):
@@ -196,6 +211,29 @@ def imprimir_lista(lista, n=None):
             sep = '\n'
         print(lista[i], end=sep)
 
+def generar_orden_aleatorio(grafo):
+
+    vertices = grafo.obtener_vertices()
+    random.shuffle(vertices)
+    return vertices
+
+def _pagerank(grafo,vertices_aleatorios,cant_vertices,iteraciones,pr_dic):
+
+    if iteraciones >= MAX_ITER_PR:
+        return pr_dic
+    
+    pr_aux = {}
+    for v in vertices_aleatorios:
+        sumatoria = 0
+        for w in grafo.obtener_adyacentes(v):
+            sumatoria += pr_dic[w] / grafo.obtener_grado(w)
+        
+        pr_aux[v] = (1 - D) / cant_vertices + D * sumatoria
+    
+    for v in vertices_aleatorios:
+        pr_dic[v] = pr_aux[v]
+        
+    return _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones +1, pr_dic)
 
 def ejecutar_comando(operacion, parametros, grafo, aeropuertos, caminos):
     camino = []

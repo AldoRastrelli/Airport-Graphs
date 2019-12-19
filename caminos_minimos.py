@@ -57,7 +57,7 @@ def recorrido_dfs(grafo):
 
 def dfs(grafo, v, visitados, padre, orden):
     visitados.add(v)
-    for w in grafo.obtener_adyacentes():
+    for w in grafo.obtener_adyacentes(v):
         if w not in visitados:
             padre[w] = v
             orden[w] = orden[v] + 1

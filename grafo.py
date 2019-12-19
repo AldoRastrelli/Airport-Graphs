@@ -5,20 +5,27 @@ from collections import defaultdict
 class Grafo:
     def __init__(self, dirigido=False, lista_vertices=[]):
         self.vertices = defaultdict(dict)
+        self.grados = defaultdict(dict) # grado de entrada + salida, si es dirigido
         self.dirigido = dirigido
         for v in lista_vertices:
             self.agregar_vertice(v)
 
     def agregar_vertice(self, v):
         if v in self.vertices:
-            return
+            return None
         else:
             self.vertices[v] = {}
+            self.grados[v] = 0
 
     def agregar_arista(self, v1, v2, peso=(0)):
         self.vertices[v1][v2] = peso
         if not self.dirigido:
             self.vertices[v2][v1] = peso
+
+        #self.grados[v1] += peso
+        #self.grados[v2] += peso
+        if self.dirigido:
+            self.vertices[v1][v2] = -peso
 
     def obtener_vertices(self):
         return list(self.vertices)
@@ -38,6 +45,10 @@ class Grafo:
             return None
         else:
             return self.vertices[v1][v2]
+    def obtener_grado(self,v):
+        if v not in self.vertices:
+            return None
+        return grafo.grados[v]
 
     def vertice_aleatorio(self):
         return choice(self.obtener_vertices())

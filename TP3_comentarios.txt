@@ -98,11 +98,11 @@ Mapa:
 
         * A tener en cuenta no sólo centralidad sino FRECUENCIA de vuelos *
 
-        Betweeness Centrality (***)
+        Betweeness Centrality (***) OK
             Parámetros: N cantidad de aerop más importantes a mostrar.
             Complejidad: O(A * F*Log(A)).
         
-        Betweeness Centrality Aproximada (*)
+        Betweeness Centrality Aproximada (*) OK
             Parámetros: N cantidad de aerop más importantes a mostrar.
             Complejidad: O(A + F).
 

@@ -33,8 +33,9 @@ def main():
 
                 ejecutar_comando(operacion, parametros, grafo_aeropuertos,
                                  aeropuertos_por_ciudad, caminos_minimos)
-            except Exception:
+            except Exception as e:
                 print(f"comando erróneo: '{comando}'")
+                raise(e)
 
 
 main()

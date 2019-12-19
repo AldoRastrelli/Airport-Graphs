@@ -16,7 +16,8 @@ def main():
     aeropuertos_por_ciudad = {}
     grafo_aeropuertos = Grafo()
 
-    procesar_archivos(aeropuertos, vuelos, grafo_aeropuertos, aeropuertos_por_ciudad)
+    procesar_archivos(aeropuertos, vuelos, grafo_aeropuertos,
+                      aeropuertos_por_ciudad)
 
     for comando in sys.stdin:
         comando = comando.rstrip('\n')
@@ -26,9 +27,14 @@ def main():
         else:
             try:
                 operacion, parametros = formatear_comando(comando)
-                ejecutar_comando(operacion, parametros, caminos_minimos)
-            except:
-                print("comando erróneo")
+
+                if operacion not in OPERACIONES:
+                    raise Exception
+
+                ejecutar_comando(operacion, parametros, grafo_aeropuertos,
+                                 aeropuertos_por_ciudad, caminos_minimos)
+            except Exception:
+                print(f"comando erróneo: '{comando}'")
 
 
 main()

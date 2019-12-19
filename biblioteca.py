@@ -6,8 +6,51 @@ import csv
 import json
 
 
-def ejecutar_comando(operacion, parametros, caminos_minimos):
-    pass
+def ejecutar_comando(operacion, parametros, grafo, aeropuertos, caminos):
+    camino = []
+
+    if operacion == "camino_mas":
+        modo = parametros[0]
+        if modo == "rapido":
+            camino = camino_minimo(
+                grafo, aeropuertos, caminos["tiempo"], parametros[1], parametros[2], 0)  # 0 == tiempo
+
+        elif modo == "barato":
+            camino = camino_minimo(
+                grafo, aeropuertos, caminos["precio"], parametros[1], parametros[2], 1)  # 1 == precio
+        imprimir_camino(camino, " -> ")
+
+    elif operacion == "camino_escalas":
+        camino = camino_minimo(
+            grafo, aeropuertos, caminos["escalas"], parametros[0], parametros[1])
+        imprimir_camino(camino, " -> ")
+
+    elif operacion == "centralidad_aprox":
+        return camino
+
+    elif operacion == "pagerank":
+        return camino
+
+    elif operacion == "centralidad":
+        return camino
+
+    elif operacion == "nueva_aerolinea":
+        camino = nueva_aerolinea(parametros[0], grafo)
+
+    elif operacion == "recorrer_mundo":
+        return camino
+
+    elif operacion == "recorrer_mundo_aprox":
+        return camino
+
+    elif operacion == "vacaciones":
+        return camino
+
+    elif operacion == "itinerario":
+        camino = itinerario_cultural(
+            parametros[0], grafo, aeropuertos, caminos["escalas"])
+
+    return camino
 
 
 def formatear_comando(comando):
@@ -74,23 +117,25 @@ def listar_operaciones(operaciones):
 
 
 # camino_mas camino_escalas
-def camino_minimo(grafo, aeropuertos, caminos, origen, destino, pesado):
+def camino_minimo(grafo, aeropuertos, archivo_caminos, origen, destino, peso=None):
     distancia_min = float('inf')
     camino_min = []
-    algoritmo = dijkstra if pesado else bfs
     caminos_calculados = {}
 
-    with open(caminos) as caminos:
+    with open(archivo_caminos) as caminos:
         caminos_calculados = json.load(caminos)
 
     if origen in caminos_calculados and destino in caminos_calculados[origen]:
         return caminos_calculados[origen][destino]
 
-    for origen in aeropuertos[origen]:
-        for destino in aeropuertos[destino]:
-            padres, orden = algoritmo(grafo, origen, destino)
-            camino, distancia = construir_camino(padres, orden)
+    for ae_origen in aeropuertos[origen]:
+        for ae_destino in aeropuertos[destino]:
+            if peso:
+                padres, orden = dijkstra(grafo, ae_origen, ae_destino, peso)
+            else:
+                padres, orden = bfs(grafo, ae_origen, ae_destino)
 
+            camino, distancia = construir_camino(padres, orden, ae_destino)
             if distancia < distancia_min:
                 distancia_min = distancia
                 camino_min = camino
@@ -98,13 +143,13 @@ def camino_minimo(grafo, aeropuertos, caminos, origen, destino, pesado):
     caminos_calculados[origen] = caminos_calculados.get(origen, {})
     caminos_calculados[origen][destino] = camino_min
 
-    with open(caminos, 'w') as caminos:
+    with open(archivo_caminos, 'w') as caminos:
         json.dump(caminos_calculados, caminos)
 
     return camino_min
 
 
-def itinerario_cultural(archivo_itinerario, aeropuertos, caminos_minimos):
+def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos, caminos_minimos):
     with open(archivo_itinerario) as itinerario:
         itinerario = csv.reader(itinerario)
 
@@ -117,11 +162,14 @@ def itinerario_cultural(archivo_itinerario, aeropuertos, caminos_minimos):
     orden = orden_topologico(grafo_ciudades)
     imprimir_camino(orden, ', ')
 
+    camino_total = []
     for i in range(len(orden)-1):
         origen, destino = orden[i], orden[i+1]
         camino_min = camino_minimo(
-            grafo_ciudades, aeropuertos, caminos_minimos, origen, destino, False)
+            grafo_aeropuertos, aeropuertos, caminos_minimos, origen, destino)
+        camino_total.extend(camino_min)
         imprimir_camino(camino_min, ' -> ')
+    return camino_total
 
 
 def exportar_kml(archivo, camino):
@@ -163,13 +211,14 @@ def exportar_kml(archivo, camino):
 
 def nueva_aerolinea(archivo, grafo):
     mst = prim(grafo, True)
+    camino_total = []
 
     with open(archivo, 'w') as ruta:
         ruta = csv.writer(ruta)
 
         for origen in mst:
             for destino in mst.obtener_adyacentes(origen):
-                peso = mst.obtener_peso(origen, destino)
-                ruta.writerow([origen, destino, peso])
+                tiempo, precio, frecuencia = mst.obtener_peso(origen, destino)
+                ruta.writerow([origen, destino, tiempo, precio, frecuencia])
 
     print("OK")

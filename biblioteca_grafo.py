@@ -35,7 +35,7 @@ def orden_topologico(grafo):
     return orden if len(orden) == len(grafo) else None
 
 
-def prim(grafo,dirigido=False):
+def prim(grafo, dirigido=False):
     v = grafo.vertice_aleatorio()
     visitados = {v}
     q = []
@@ -44,7 +44,7 @@ def prim(grafo,dirigido=False):
         peso = grafo.obtener_peso(v, w)
         heappush(q, (peso, v, w))
 
-    arbol = Grafo(dirigido,grafo.obtener_vertices())
+    arbol = Grafo(dirigido, grafo.obtener_vertices())
 
     while q:
         peso, v, w = heappop(q)

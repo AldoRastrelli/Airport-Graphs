@@ -82,13 +82,13 @@ Mapa:
 
         // Tener un txt y leer del mismo las operaciones disponibles, imprimiendo en pantalla.
 
-    2. Camino_mas (★)
+    2. Camino_mas (★) OK
 
         Parámetros: barato ó rapido + origen y destino (ciudades, no aeropuertos)
         Complejidad: Este comando debe ejecutar en O(F*log(A)), siendo A la cantidad de aeropuertos,
             y F la cantidad de vuelos entre aeropuertos (sin contar frecuencia). 
 
-    3. camino_escalas (*)
+    3. camino_escalas (*) OK
         Camino con menor cantidad de escalas.
         Parámetros: origen y destino.
         Este comando debe ejecutar en O(F+A), siendo A la cantidad de aeropuertos,
@@ -106,11 +106,11 @@ Mapa:
             Parámetros: N cantidad de aerop más importantes a mostrar.
             Complejidad: O(A + F).
 
-        Pagerank (**)
+        Pagerank (**) OK
             Parámetros: N cantidad de aerop más importantes a mostrar.
             Complejidad: O(K*(A+F)), K cantidad de iteraciones.
 
-    5. Optimización de rutas para nueva aerolínea (**)
+    5. Optimización de rutas para nueva aerolínea (**) OK
 
         Comando: nueva_aerolinea.
         Parámetros: ruta, ruta del archivo de salida.
@@ -158,7 +158,7 @@ Mapa:
 
         // backtracking ?
 
-    9. Itinerario cultural (**)
+    9. Itinerario cultural (**) OK
 
         Comando: itinerario
         Parámetros: ruta, la ruta el archivo del itinerario.
@@ -170,7 +170,7 @@ Mapa:
         Imprimir el orden en el que deben visitarse dichas ciudades.
         Imprimir el camino mínimo en tiempo o escalas (según lo que se haya implementado en ese caso) a realizar.
 
-    10. Exportar a archivo KML (*)
+    10. Exportar a archivo KML (*) OK
 
         Comando: exportar_kml.
         Parámetros: archivo.

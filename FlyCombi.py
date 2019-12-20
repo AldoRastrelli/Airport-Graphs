@@ -13,7 +13,7 @@ def main():
     caminos_minimos = {"escalas": "cmescalas.json",
                        "precio": "cmprecio.json", "tiempo": "cmtiempo.json"}
 
-    # generar_archivos_cm(caminos_minimos)  #descomentar para limpiar archivos de caminos minimos
+    #generar_archivos_cm(caminos_minimos)  #descomentar para limpiar archivos de caminos minimos
 
     aeropuertos = {}
     aeropuertos_por_ciudad = {}

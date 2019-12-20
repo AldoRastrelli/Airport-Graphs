@@ -8,6 +8,7 @@ from grafo import Grafo
 from aeropuerto import Aeropuerto
 MAX_ITER_PR = 100
 D = 0.85
+SEP_CAMINO = ' -> '
 
 """""""""""""""""""""""""""
     Comandos pedidos
@@ -15,20 +16,17 @@ D = 0.85
 
 
 def listar_operaciones(operaciones):
-
     for operacion in operaciones:
         print(f"{operacion}")
 
 
 def betweeness_centrality(grafo, n):
-
     centralidad = centralidad(grafo)        # O(V*ElogV)
     heap = ordenar_vertices(centralidad)    # O(V)
     imprimir_heap(heap, n)                   # O(V)
 
 
 def betweeness_centrality_aproximada(grafo, n):             # O(V+E) total
-
     dic_centralidad = recorrido_dfs_grado(grafo)            # O(V+E)
     lista_centralidad = pasar_dic_a_lista(dic_centralidad)  # O(V)
     lista_centralidad.sort(reverse=True)                  # O(V)
@@ -36,7 +34,6 @@ def betweeness_centrality_aproximada(grafo, n):             # O(V+E) total
 
 
 def pagerank(grafo):
-
     vertices_aleatorios = generar_orden_aleatorio(grafo)
     pr_dic = {}
 
@@ -46,6 +43,25 @@ def pagerank(grafo):
     cant_vertices = len(vertices_aleatorios)
 
     return _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic)
+
+
+def n_lugares(grafo,origen,n):
+    if n < 3 and n != 1:
+        print("No se encontro recorrido")
+        return
+    if n == 1:
+        print(origen)
+        return
+    
+    hijo = {}
+    visitados = set()
+
+    visitados.add(origen)
+    if not _n_lugares(grafo, origen, n, hijo, visitados, origen):
+        print("No se encontro recorrido")
+        return
+    camino = generar_camino_circular(hijo,origen)
+    return imprimir_camino(camino,SEP_CAMINO)
 
 
 def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos, caminos_minimos):
@@ -67,7 +83,7 @@ def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos, cami
         camino_min = camino_minimo(
             grafo_aeropuertos, aeropuertos, caminos_minimos, origen, destino)
 
-        imprimir_camino(camino_min, ' -> ')
+        imprimir_camino(camino_min, 'SEP_CAMINO')
     return camino_total
 
 
@@ -240,6 +256,29 @@ def _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic):
     return _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones + 1, pr_dic)
 
 
+def _n_lugares(grafo, origen, n, hijo, visitados, actual):
+    if len(visitados) == n:
+        return (origen in grafo.obtener_adyacentes(actual))
+    
+    for w in grafo.obtener_adyacentes(actual):
+        visitados.add(w)
+        hijo[actual] = w
+        if _n_lugares(grafo, origen, n, hijo, visitados, w):
+            hijo[w] = None
+            return True
+        visitados.remove(w)
+    return false
+
+
+def generar_camino_circular(hijo,origen):
+    camino = []
+    actual = origen
+    while actual != None:
+        camino.append(actual)
+        actual = hijo[actual]
+    camino.append(origen)
+    return camino
+
 def ejecutar_comando(operacion, parametros, grafo, aeropuertos, caminos):
     camino = []
 
@@ -252,12 +291,12 @@ def ejecutar_comando(operacion, parametros, grafo, aeropuertos, caminos):
         elif modo == "barato":
             camino = camino_minimo(
                 grafo, aeropuertos, caminos["precio"], parametros[1], parametros[2], 1)  # 1 == precio
-        imprimir_camino(camino, " -> ")
+        imprimir_camino(camino, "SEP_CAMINO")
 
     elif operacion == "camino_escalas":
         camino = camino_minimo(
             grafo, aeropuertos, caminos["escalas"], parametros[0], parametros[1])
-        imprimir_camino(camino, " -> ")
+        imprimir_camino(camino, "SEP_CAMINO")
 
     elif operacion == "centralidad":
         betweeness_centrality(grafo, parametros[0])
@@ -354,7 +393,7 @@ def generar_archivos_cm(caminos_minimos):
             archivo.write("{}")
 
 
-def imprimir_camino(camino, separador):
+def imprimir_camino(camino, separador = " "):
     for i in range(len(camino)-1):
         print(camino[i], end=separador)
     if camino:

@@ -66,7 +66,7 @@ def dfs(grafo, v, visitados, padre, orden):
             dfs(grafo, w, visitados, orden, padre)
 
 
-def dijkstra(grafo, origen, destino=None, peso=0):    # .Camino mínimo
+def dijkstra(grafo, origen, destino=None):    # .Camino mínimo
     distancia = {}
     padre = {}
     for v in grafo.obtener_vertices():
@@ -82,8 +82,8 @@ def dijkstra(grafo, origen, destino=None, peso=0):    # .Camino mínimo
         if destino and v == destino:
             break
         for w in grafo.obtener_adyacentes(v):
-            if distancia[v] + grafo.obtener_peso(v, w)[peso] < distancia[w]:
-                distancia[w] = distancia[v] + grafo.obtener_peso(v, w)[peso]
+            if distancia[v] + grafo.obtener_peso(v, w) < distancia[w]:
+                distancia[w] = distancia[v] + grafo.obtener_peso(v, w)
                 padre[w] = v
                 heappush(q, (distancia[w], w))
 

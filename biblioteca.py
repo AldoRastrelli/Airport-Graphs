@@ -79,7 +79,7 @@ def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos, cami
     for i in range(len(orden)-1):
         origen, destino = orden[i], orden[i+1]
         camino_min = camino_minimo(
-            grafo_aeropuertos, aeropuertos, caminos_minimos, origen, destino)
+            grafo_aeropuertos, aeropuertos, caminos_minimos, origen, destino, False)
 
         imprimir_camino(camino_min, SEP_CAMINO)
     return camino_total
@@ -275,36 +275,36 @@ def generar_camino_circular(hijo, origen):
     return camino
 
 
-def ejecutar_comando(operacion, parametros, grafo, aeropuertos, caminos):
+def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, aeropuertos, caminos):
     camino = []
 
     if operacion == "camino_mas":
         modo = parametros[0]
         if modo == "rapido":
             camino = camino_minimo(
-                grafo, aeropuertos, caminos["tiempo"], parametros[1], parametros[2], 0)  # 0 == tiempo
+                grafo_tiempo, aeropuertos, caminos["tiempo"], parametros[1], parametros[2])
 
         elif modo == "barato":
             camino = camino_minimo(
-                grafo, aeropuertos, caminos["precio"], parametros[1], parametros[2], 1)  # 1 == precio
+                grafo_precio, aeropuertos, caminos["precio"], parametros[1], parametros[2])
         imprimir_camino(camino, SEP_CAMINO)
 
     elif operacion == "camino_escalas":
         camino = camino_minimo(
-            grafo, aeropuertos, caminos["escalas"], parametros[0], parametros[1])
+            grafo_vuelos, aeropuertos, caminos["escalas"], parametros[0], parametros[1], False)
         imprimir_camino(camino, SEP_CAMINO)
 
     elif operacion == "centralidad":
-        betweeness_centrality(grafo, parametros[0])
+        betweeness_centrality(grafo_vuelos, parametros[0])
 
     elif operacion == "centralidad_aprox":
-        betweeness_centrality_aproximada(grafo, parametros[0])
+        betweeness_centrality_aproximada(grafo_vuelos, parametros[0])
 
     elif operacion == "pagerank":
-        pagerank(grafo)
+        pagerank(grafo_vuelos)
 
     elif operacion == "nueva_aerolinea":
-        camino = nueva_aerolinea(parametros[0], grafo)  # modificar
+        camino = nueva_aerolinea(parametros[0], grafo_precio)  # modificar
         print("OK")
 
     elif operacion == "recorrer_mundo":
@@ -314,12 +314,12 @@ def ejecutar_comando(operacion, parametros, grafo, aeropuertos, caminos):
         return camino
 
     elif operacion == "vacaciones":
-        camino = n_lugares(grafo, parametros[0], int(parametros[1]))
+        camino = n_lugares(grafo_vuelos, parametros[0], int(parametros[1]))
         imprimir_camino(camino, SEP_CAMINO)
 
     elif operacion == "itinerario":
         camino = itinerario_cultural(
-            parametros[0], grafo, aeropuertos, caminos["escalas"])
+            parametros[0], grafo_vuelos, aeropuertos, caminos["escalas"])
         print("OK")
 
     elif operacion == "exportar_kml":
@@ -362,9 +362,12 @@ def formatear_comando(comando):
     raise Exception
 
 
-def procesar_archivos(archivo_aeropuertos, archivo_vuelos, grafo_aeropuertos, dic_aeropuertos, aeropuertos_por_ciudad):
+def procesar_archivos(archivo_aeropuertos, archivo_vuelos, dic_aeropuertos, aeropuertos_por_ciudad):
     with open(archivo_aeropuertos) as aeropuertos:
         aeropuertos = csv.reader(aeropuertos)
+        grafo_tiempo = Grafo()
+        grafo_precio = Grafo()
+        grafo_vuelos = Grafo()
 
         for ciudad, codigo_aeropuerto, latitud, longitud in aeropuertos:
             if ciudad in aeropuertos_por_ciudad:
@@ -374,15 +377,20 @@ def procesar_archivos(archivo_aeropuertos, archivo_vuelos, grafo_aeropuertos, di
 
             aeropuerto = Aeropuerto(
                 codigo_aeropuerto, ciudad, float(latitud), float(longitud))
-            grafo_aeropuertos.agregar_vertice(aeropuerto)
             dic_aeropuertos[codigo_aeropuerto] = aeropuerto
+            grafo_tiempo.agregar_vertice(aeropuerto)
+            grafo_precio.agregar_vertice(aeropuerto)
+            grafo_vuelos.agregar_vertice(aeropuerto)
 
     with open(archivo_vuelos) as vuelos:
         vuelos = csv.reader(vuelos)
 
         for origen, destino, tiempo, precio, cant_vuelos in vuelos:
-            peso = float(tiempo), float(precio), float(cant_vuelos)
-            grafo_aeropuertos.agregar_arista(origen, destino, peso)
+            grafo_tiempo.agregar_arista(origen, destino, float(tiempo))
+            grafo_precio.agregar_arista(origen, destino, float(precio))
+            grafo_vuelos.agregar_arista(origen, destino, float(cant_vuelos))
+
+    return grafo_tiempo, grafo_precio, grafo_vuelos
 
 
 def generar_archivos_cm(caminos_minimos):
@@ -398,24 +406,25 @@ def imprimir_camino(camino, separador=" "):
         print(camino[-1])
 
 
-# camino_mas camino_escalas
-def camino_minimo(grafo, aeropuertos, archivo_caminos, origen, destino, peso=None):
+def camino_minimo(grafo, aeropuertos, archivo_caminos, origen, destino, pesado=True):
     distancia_min = float('inf')
     camino_min = []
-    caminos_calculados = {}
 
     with open(archivo_caminos) as caminos:
-        caminos_calculados = json.load(caminos)
+        try:
+            caminos_calculados = json.load(caminos)
+        except:
+            caminos_calculados = {}
 
     if origen in caminos_calculados and destino in caminos_calculados[origen]:
         return caminos_calculados[origen][destino]
 
     for ae_origen in aeropuertos[origen]:
         for ae_destino in aeropuertos[destino]:
-            if peso is None:
-                padres, orden = bfs(grafo, ae_origen, ae_destino)
+            if pesado:
+                padres, orden = dijkstra(grafo, ae_origen, ae_destino)
             else:
-                padres, orden = dijkstra(grafo, ae_origen, ae_destino, peso)
+                padres, orden = bfs(grafo, ae_origen, ae_destino)
 
             camino, distancia = construir_camino(padres, orden, ae_destino)
             if distancia < distancia_min:

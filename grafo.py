@@ -17,16 +17,16 @@ class Grafo:
             self.vertices[v] = {}
             self.grado[v] = 0
 
-    def agregar_arista(self, v1, v2, peso=(0,0,0)):
+    def agregar_arista(self, v1, v2, peso=0):
         self.vertices[v1][v2] = peso
-        #self.grado[v2] += peso
+        self.grado[v2] += peso
 
         if not self.dirigido:
             self.vertices[v2][v1] = peso
-            #self.grado[v1] += peso
+            self.grado[v1] += peso
 
         else:
-            self.vertices[v1][v2] = (-peso[0],-peso[1],-peso[2])
+            self.vertices[v1][v2] = -peso
 
     def obtener_vertices(self):
         return list(self.vertices)

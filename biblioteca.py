@@ -11,132 +11,6 @@ D = 0.85
 SEP_CAMINO = ' -> '
 
 """""""""""""""""""""""""""
-    Comandos pedidos
-"""""""""""""""""""""""""""
-
-
-def listar_operaciones(operaciones):
-    for operacion in operaciones:
-        print(f"{operacion}")
-
-
-def betweeness_centrality(grafo, n):
-    centralidad = centralidad(grafo)        # O(V*ElogV)
-    heap = ordenar_vertices(centralidad)    # O(V)
-    imprimir_heap(heap, n)                   # O(V)
-
-
-def betweeness_centrality_aproximada(grafo, n):             # O(V+E) total
-    dic_centralidad = recorrido_dfs_grado(grafo)            # O(V+E)
-    lista_centralidad = pasar_dic_a_lista(dic_centralidad)  # O(V)
-    lista_centralidad.sort(reverse=True)                  # O(V)
-    imprimir_lista(lista_centralidad)                   # O(V)
-
-
-def pagerank(grafo):
-    vertices_aleatorios = generar_orden_aleatorio(grafo)
-    pr_dic = {}
-
-    for v in vertices_aleatorios:
-        pr_dic[v] = 0
-    iteraciones = 0
-    cant_vertices = len(vertices_aleatorios)
-
-    return _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic)
-
-
-def n_lugares(grafo, origen, n):
-    if n < 3 and n != 1:
-        print("No se encontro recorrido")
-        return []
-    if n == 1:
-        return [origen]
-
-    hijo = {}
-    visitados = set()
-
-    visitados.add(origen)
-    if not _n_lugares(grafo, origen, n, hijo, visitados, origen):
-        print("No se encontro recorrido")
-        return []
-    return generar_camino_circular(hijo, origen)
-
-
-def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos, caminos_minimos):
-    with open(archivo_itinerario) as itinerario:
-        itinerario = csv.reader(itinerario)
-
-        ciudades = next(itinerario)
-        grafo_ciudades = Grafo(True, ciudades)
-
-        for ciudad_a, ciudad_b in itinerario:
-            grafo_ciudades.agregar_arista(ciudad_a, ciudad_b)
-
-    orden = orden_topologico(grafo_ciudades)
-    imprimir_camino(orden, ', ')
-    camino_total = []
-
-    for i in range(len(orden)-1):
-        origen, destino = orden[i], orden[i+1]
-        camino_min = camino_minimo(
-            grafo_aeropuertos, aeropuertos, caminos_minimos, origen, destino, False)
-
-        imprimir_camino(camino_min, SEP_CAMINO)
-    return camino_total
-
-
-def exportar_kml(archivo, camino, aeropuertos):
-    inicio = '''<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2">
-    <Document>
-        <name>KML TP3</name>'''
-    fin = '''
-    <Document>\n</kml>'''
-
-    with open(archivo, 'w') as kml:
-        kml.write(inicio)
-
-        for aeropuerto in camino:
-            aeropuerto = aeropuertos[aeropuerto]
-
-            lugar = f'''
-        <Placemark>
-            <name>{aeropuerto}</name>
-            <Point>
-                <coordinates>{aeropuerto.get_longitud()}, {aeropuerto.get_latitud()}</coordinates>
-            </Point>
-        </Placemark>
-        '''
-            kml.write(lugar)
-
-        for i in range(len(camino)-1):
-            origen = aeropuertos[camino[i]]
-            destino = aeropuertos[camino[i+1]]
-            recorrido = f'''
-        <Placemark>
-            <LineString>
-                <coordinates>{origen.get_longitud()}, {origen.get_latitud()} {destino.get_longitud()}, {destino.get_latitud()}</coordinates>
-            </LineString>
-        </Placemark>
-        '''
-            kml.write(recorrido)
-
-        kml.write(fin)
-
-
-def nueva_aerolinea(archivo, grafo):
-    mst = prim(grafo, True)
-    camino_total = []
-
-    with open(archivo, 'w') as ruta:
-        ruta = csv.writer(ruta)
-
-        for origen in mst:
-            for destino in mst.obtener_adyacentes(origen):
-                tiempo, precio, frecuencia = mst.obtener_peso(origen, destino)
-                ruta.writerow([origen, destino, tiempo, precio, frecuencia])
-
-
-"""""""""""""""""""""""""""
     Funciones auxiliares
 """""""""""""""""""""""""""
 
@@ -147,13 +21,15 @@ def centralidad(grafo):
     for v in vertices_grafo:
         cent[v] = 0  # O(v)
     for v in vertices_grafo:
-        distancia, padre = dijkstra(grafo, v)  # Son diccionarios
+        padre, distancia = dijkstra(grafo, v)  # Son diccionarios
         cent_aux = {}
         for w in vertices_grafo:
             cent_aux[w] = 0
 
         vertices_ordenados = ordenar_vertices(distancia)
         for dist_w, w in vertices_ordenados:
+            if padre[w] is None:
+                continue
             cent_aux[padre[w]] += 1 + cent_aux[w]
 
         for w in vertices_grafo:
@@ -170,7 +46,6 @@ def ordenar_vertices(diccionario):
             continue
         tupla_invertida = (tupla[1], tupla[0])
         lista.append(tupla_invertida)
-
     heapify(lista)
     return lista
 
@@ -186,7 +61,6 @@ def imprimir_heap(heap, n=None):
 
 
 def recorrido_dfs_grado(grafo):
-
     visitados = set()
     centralidad = {}
 
@@ -203,37 +77,35 @@ def dfs_grados(grafo, v, visitados, centralidad):
 
     for w in grafo.obtener_adyacentes(v):
         if w not in visitados:
-            dfs_grados(grafo, w, visitados, orden, padre)
+            dfs_grados(grafo, w, visitados, centralidad)
 
 
 def pasar_dic_a_lista(diccionario):
-
     lista = []
-    for clave, valor in diccionario:
+    for clave in diccionario:
+        valor = diccionario[clave]
         lista.append((valor, clave))
 
     return lista
 
 
 def imprimir_lista(lista, n=None):
-    if n == None:
+    if n == None or n > len(lista):
         n = len(lista)
     sep = ', '
     for i in range(n):
         if i == n-1:
             sep = '\n'
-        print(lista[i], end=sep)
+        print(lista[i][1], end=sep)
 
 
 def generar_orden_aleatorio(grafo):
-
     vertices = grafo.obtener_vertices()
     random.shuffle(vertices)
     return vertices
 
 
 def _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic):
-
     if iteraciones >= MAX_ITER_PR:
         return pr_dic
 
@@ -255,7 +127,7 @@ def _n_lugares(grafo, origen, n, hijo, visitados, actual):
     if len(visitados) == n:
         return (origen in grafo.obtener_adyacentes(actual))
 
-    for w in grafo.obtener_adyacentes(actual):
+    for w in grafo.obtener_adyacentes(actual): #if w in visitados and w != origen: continue
         visitados.add(w)
         hijo[actual] = w
         if _n_lugares(grafo, origen, n, hijo, visitados, w):
@@ -295,13 +167,13 @@ def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vu
         imprimir_camino(camino, SEP_CAMINO)
 
     elif operacion == "centralidad":
-        betweeness_centrality(grafo_vuelos, parametros[0])
+        betweeness_centrality(grafo_vuelos, int(parametros[0]))
 
     elif operacion == "centralidad_aprox":
-        betweeness_centrality_aproximada(grafo_vuelos, parametros[0])
+        betweeness_centrality_aproximada(grafo_vuelos, int(parametros[0]))
 
     elif operacion == "pagerank":
-        pagerank(grafo_vuelos)
+        pagerank(grafo_vuelos, int(parametros[0]))
 
     elif operacion == "nueva_aerolinea":
         camino = nueva_aerolinea(parametros[0], grafo_precio)  # modificar
@@ -314,7 +186,8 @@ def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vu
         return camino
 
     elif operacion == "vacaciones":
-        camino = n_lugares(grafo_vuelos, parametros[0], int(parametros[1]))
+        camino = n_lugares(grafo_vuelos, aeropuertos,
+                           parametros[0], int(parametros[1]))
         imprimir_camino(camino, SEP_CAMINO)
 
     elif operacion == "itinerario":
@@ -438,3 +311,135 @@ def camino_minimo(grafo, aeropuertos, archivo_caminos, origen, destino, pesado=T
         json.dump(caminos_calculados, caminos)
 
     return camino_min
+
+
+"""""""""""""""""""""""""""
+    Comandos pedidos
+"""""""""""""""""""""""""""
+
+
+def listar_operaciones(operaciones):
+    for operacion in operaciones:
+        print(f"{operacion}")
+
+
+def betweeness_centrality(grafo, n):
+    centr = centralidad(grafo)        # O(V*ElogV)
+    heap = ordenar_vertices(centr)    # O(V)
+    imprimir_heap(heap, n)         # O(V)
+
+
+def betweeness_centrality_aproximada(grafo, n):             # O(V+E) total
+    dic_centralidad = recorrido_dfs_grado(grafo)            # O(V+E)
+    lista_centralidad = pasar_dic_a_lista(dic_centralidad)  # O(V)
+    lista_centralidad.sort(reverse=True)                  # O(V)
+    imprimir_lista(lista_centralidad, n)                   # O(V)
+
+
+def pagerank(grafo, n):
+    vertices_aleatorios = generar_orden_aleatorio(grafo)
+    pr_dic = {}
+
+    for v in vertices_aleatorios:
+        pr_dic[v] = 0
+    iteraciones = 0
+    cant_vertices = len(vertices_aleatorios)
+
+    dic_pagerank = _pagerank(grafo, vertices_aleatorios,
+                             cant_vertices, iteraciones, pr_dic)
+    lista_pagerank = pasar_dic_a_lista(dic_pagerank)
+    lista_pagerank.sort(reverse=True)
+    imprimir_lista(lista_pagerank, n)
+
+
+def n_lugares(grafo, aeropuertos, origen, n):
+    if n < 3 and n != 1:
+        print("No se encontro recorrido")
+        return []
+    if n == 1:
+        return [origen]
+
+    for aeropuerto_origen in aeropuertos[origen]:
+        hijo = {}
+        visitados = set()
+        visitados.add(aeropuerto_origen)
+        if _n_lugares(grafo, aeropuerto_origen, n, hijo, visitados, aeropuerto_origen):
+            print("hijo",hijo)
+            return generar_camino_circular(hijo, aeropuerto_origen)
+
+    print("No se encontro recorrido")
+    return []
+
+
+def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos, caminos_minimos):
+    with open(archivo_itinerario) as itinerario:
+        itinerario = csv.reader(itinerario)
+
+        ciudades = next(itinerario)
+        grafo_ciudades = Grafo(True, ciudades)
+
+        for ciudad_a, ciudad_b in itinerario:
+            grafo_ciudades.agregar_arista(ciudad_a, ciudad_b)
+
+    orden = orden_topologico(grafo_ciudades)
+    imprimir_camino(orden, ', ')
+    camino_total = []
+
+    for i in range(len(orden)-1):
+        origen, destino = orden[i], orden[i+1]
+        camino_min = camino_minimo(
+            grafo_aeropuertos, aeropuertos, caminos_minimos, origen, destino, False)
+
+        imprimir_camino(camino_min, SEP_CAMINO)
+    return camino_total
+
+
+def exportar_kml(archivo, camino, aeropuertos):
+    inicio = '''<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document>
+        <name>KML TP3</name>'''
+    fin = '''
+    <Document>\n</kml>'''
+
+    with open(archivo, 'w') as kml:
+        kml.write(inicio)
+
+        for aeropuerto in camino:
+            aeropuerto = aeropuertos[aeropuerto]
+
+            lugar = f'''
+        <Placemark>
+            <name>{aeropuerto}</name>
+            <Point>
+                <coordinates>{aeropuerto.get_longitud()}, {aeropuerto.get_latitud()}</coordinates>
+            </Point>
+        </Placemark>
+        '''
+            kml.write(lugar)
+
+        for i in range(len(camino)-1):
+            origen = aeropuertos[camino[i]]
+            destino = aeropuertos[camino[i+1]]
+            recorrido = f'''
+        <Placemark>
+            <LineString>
+                <coordinates>{origen.get_longitud()}, {origen.get_latitud()} {destino.get_longitud()}, {destino.get_latitud()}</coordinates>
+            </LineString>
+        </Placemark>
+        '''
+            kml.write(recorrido)
+
+        kml.write(fin)
+
+
+def nueva_aerolinea(archivo, grafo):
+    mst = prim(grafo, True)
+    camino_total = []
+
+    with open(archivo, 'w') as ruta:
+        ruta = csv.writer(ruta)
+
+        for origen in mst:
+            for destino in mst.obtener_adyacentes(origen):
+                tiempo, precio, frecuencia = mst.obtener_peso(origen, destino)
+                ruta.writerow([origen, destino, tiempo, precio, frecuencia])

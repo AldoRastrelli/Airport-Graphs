@@ -45,23 +45,21 @@ def pagerank(grafo):
     return _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic)
 
 
-def n_lugares(grafo,origen,n):
+def n_lugares(grafo, origen, n):
     if n < 3 and n != 1:
         print("No se encontro recorrido")
-        return
+        return []
     if n == 1:
-        print(origen)
-        return
-    
+        return [origen]
+
     hijo = {}
     visitados = set()
 
     visitados.add(origen)
     if not _n_lugares(grafo, origen, n, hijo, visitados, origen):
         print("No se encontro recorrido")
-        return
-    camino = generar_camino_circular(hijo,origen)
-    return imprimir_camino(camino,SEP_CAMINO)
+        return []
+    return generar_camino_circular(hijo, origen)
 
 
 def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos, caminos_minimos):
@@ -83,7 +81,7 @@ def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos, cami
         camino_min = camino_minimo(
             grafo_aeropuertos, aeropuertos, caminos_minimos, origen, destino)
 
-        imprimir_camino(camino_min, 'SEP_CAMINO')
+        imprimir_camino(camino_min, SEP_CAMINO)
     return camino_total
 
 
@@ -137,8 +135,6 @@ def nueva_aerolinea(archivo, grafo):
                 tiempo, precio, frecuencia = mst.obtener_peso(origen, destino)
                 ruta.writerow([origen, destino, tiempo, precio, frecuencia])
 
-    print("OK")
-
 
 """""""""""""""""""""""""""
     Funciones auxiliares
@@ -180,14 +176,13 @@ def ordenar_vertices(diccionario):
 
 
 def imprimir_heap(heap, n=None):
-
     if n == None:
         n = len(heap)
     sep = ', '
     for i in range(n):
         if i == n-1:
             sep = '\n'
-        print(heappop(lista)[1], end=sep)
+        print(heappop(heap)[1], end=sep)
 
 
 def recorrido_dfs_grado(grafo):
@@ -259,7 +254,7 @@ def _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic):
 def _n_lugares(grafo, origen, n, hijo, visitados, actual):
     if len(visitados) == n:
         return (origen in grafo.obtener_adyacentes(actual))
-    
+
     for w in grafo.obtener_adyacentes(actual):
         visitados.add(w)
         hijo[actual] = w
@@ -267,10 +262,10 @@ def _n_lugares(grafo, origen, n, hijo, visitados, actual):
             hijo[w] = None
             return True
         visitados.remove(w)
-    return false
+    return False
 
 
-def generar_camino_circular(hijo,origen):
+def generar_camino_circular(hijo, origen):
     camino = []
     actual = origen
     while actual != None:
@@ -278,6 +273,7 @@ def generar_camino_circular(hijo,origen):
         actual = hijo[actual]
     camino.append(origen)
     return camino
+
 
 def ejecutar_comando(operacion, parametros, grafo, aeropuertos, caminos):
     camino = []
@@ -291,12 +287,12 @@ def ejecutar_comando(operacion, parametros, grafo, aeropuertos, caminos):
         elif modo == "barato":
             camino = camino_minimo(
                 grafo, aeropuertos, caminos["precio"], parametros[1], parametros[2], 1)  # 1 == precio
-        imprimir_camino(camino, "SEP_CAMINO")
+        imprimir_camino(camino, SEP_CAMINO)
 
     elif operacion == "camino_escalas":
         camino = camino_minimo(
             grafo, aeropuertos, caminos["escalas"], parametros[0], parametros[1])
-        imprimir_camino(camino, "SEP_CAMINO")
+        imprimir_camino(camino, SEP_CAMINO)
 
     elif operacion == "centralidad":
         betweeness_centrality(grafo, parametros[0])
@@ -308,7 +304,8 @@ def ejecutar_comando(operacion, parametros, grafo, aeropuertos, caminos):
         pagerank(grafo)
 
     elif operacion == "nueva_aerolinea":
-        camino = nueva_aerolinea(parametros[0], grafo)
+        camino = nueva_aerolinea(parametros[0], grafo)  # modificar
+        print("OK")
 
     elif operacion == "recorrer_mundo":
         return camino
@@ -317,7 +314,8 @@ def ejecutar_comando(operacion, parametros, grafo, aeropuertos, caminos):
         return camino
 
     elif operacion == "vacaciones":
-        return camino
+        camino = n_lugares(grafo, parametros[0], int(parametros[1]))
+        imprimir_camino(camino, SEP_CAMINO)
 
     elif operacion == "itinerario":
         camino = itinerario_cultural(
@@ -393,7 +391,7 @@ def generar_archivos_cm(caminos_minimos):
             archivo.write("{}")
 
 
-def imprimir_camino(camino, separador = " "):
+def imprimir_camino(camino, separador=" "):
     for i in range(len(camino)-1):
         print(camino[i], end=separador)
     if camino:

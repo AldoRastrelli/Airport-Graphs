@@ -350,6 +350,8 @@ def camino_minimo(grafo, aeropuertos, archivo_caminos, origen, destino, pesado=T
 
 
 def listar_operaciones(operaciones):
+    """ Recibe una lista de operaciones disponibles y las
+    imprime una por renglón """
     for operacion in operaciones:
         print(f"{operacion}")
 
@@ -406,6 +408,7 @@ def n_lugares(grafo, aeropuertos, origen, n):
         return [origen]
 
     for aeropuerto_origen in aeropuertos[origen]:
+        print(aeropuerto_origen)
         hijo = {}
         visitados = set()
         visitados.add(aeropuerto_origen)

@@ -14,6 +14,7 @@ SEP_CAMINO = ' -> '
     Funciones auxiliares
 """""""""""""""""""""""""""
 
+
 def centralidad(grafo):
     """Calcula la centralidad de los vértices de un grafo de manera exacta y 
     devuelve un diccionario con los valores. Recibe un grafo por parámetro.
@@ -23,7 +24,7 @@ def centralidad(grafo):
     for v in vertices_grafo:
         cent[v] = 0  # O(v)
     for v in vertices_grafo:
-        padre, distancia = dijkstra(grafo, v)  # Son diccionarios
+        padre, distancia = dijkstra(grafo, v, funcion=lambda x: 1/x)
         cent_aux = {}
         for w in vertices_grafo:
             cent_aux[w] = 0
@@ -55,7 +56,7 @@ def ordenar_vertices(diccionario):
     return lista
 
 
-def imprimir_heap(heap, n = None):
+def imprimir_heap(heap, n=None):
     """ Imprime n cantidad de elementos de un heap en orden de menor
     a mayor. Se recibe el heap por parámetro.
     N es opcional. De no pasarse, se imprime todo el heap. """
@@ -103,7 +104,7 @@ def pasar_dic_a_lista(diccionario):
     return lista
 
 
-def imprimir_lista(lista, n = None):
+def imprimir_lista(lista, n=None):
     """ Recibe una lista y, opcionalmente, un número n
     de elementos a imprimir de la lista, desde la posición 0.
     De no recibirse n, se imprime toda al lista. """
@@ -294,7 +295,7 @@ def procesar_archivos(archivo_aeropuertos, archivo_vuelos, dic_aeropuertos, aero
         for origen, destino, tiempo, precio, cant_vuelos in vuelos:
             grafo_tiempo.agregar_arista(origen, destino, float(tiempo))
             grafo_precio.agregar_arista(origen, destino, float(precio))
-            grafo_vuelos.agregar_arista(origen, destino, 1/float(cant_vuelos))
+            grafo_vuelos.agregar_arista(origen, destino, float(cant_vuelos))
 
     return grafo_tiempo, grafo_precio, grafo_vuelos
 
@@ -499,7 +500,7 @@ def nueva_aerolinea(archivo, grafo_precio, grafo_tiempo, grafo_vuelos):
                     continue
                 tiempo = grafo_tiempo.obtener_peso(origen, destino)
                 precio = grafo_precio.obtener_peso(origen, destino)
-                vuelos = 1/grafo_vuelos.obtener_peso(origen, destino)
+                vuelos = grafo_vuelos.obtener_peso(origen, destino)
                 visitados.add((origen, destino))
                 camino.append(destino)
                 ruta.writerow([origen, destino, tiempo, precio, vuelos])

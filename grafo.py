@@ -31,6 +31,12 @@ class Grafo:
     def obtener_vertices(self):
         return list(self.vertices)
 
+    #def obtener_aristas(self):
+    #    aristas = []
+    #    for v in self.obtener_vertices():
+    #        for w in self.obtener_adyacentes(v):
+    #            aristas.append( (v,w,self.obtener_peso(v,w) ))
+
     def obtener_adyacentes(self, v):
         if v not in self.vertices:
             return []

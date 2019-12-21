@@ -145,7 +145,7 @@ Mapa:
         Podemos volver a usar un aeropuerto ya usado, u otro de alguna ciudad ya visitada,
         si eso mejora la duración de nuestro viaje.
 
-    8. Viaje de N lugares (***)
+    8. Viaje de N lugares (***) OK
 
         Comando: vacaciones
         Parámetros: origen, y n.

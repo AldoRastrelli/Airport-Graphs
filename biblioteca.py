@@ -14,8 +14,10 @@ SEP_CAMINO = ' -> '
     Funciones auxiliares
 """""""""""""""""""""""""""
 
-
 def centralidad(grafo):
+    """Calcula la centralidad de los vértices de un grafo de manera exacta y 
+    devuelve un diccionario con los valores. Recibe un grafo por parámetro.
+    Precondiciones: el grafo no debe ser vacío. """
     cent = {}
     vertices_grafo = grafo.obtener_vertices()
     for v in vertices_grafo:
@@ -40,6 +42,9 @@ def centralidad(grafo):
 
 
 def ordenar_vertices(diccionario):
+    """ Recibe un diccionario de tuplas en el formato (vertice, número real).
+    Invierte el sentido de la tupla (número real, vertice) y los appendea en una lista.
+    Se devuelve la lista en forma de heap de mínimos. """
     lista = []
     for tupla in diccionario.items():
         if tupla[1] == float('inf'):
@@ -50,7 +55,10 @@ def ordenar_vertices(diccionario):
     return lista
 
 
-def imprimir_heap(heap, n=None):
+def imprimir_heap(heap, n = None):
+    """ Imprime n cantidad de elementos de un heap en orden de menor
+    a mayor. Se recibe el heap por parámetro.
+    N es opcional. De no pasarse, se imprime todo el heap. """
     if n == None:
         n = len(heap)
     sep = ', '
@@ -61,6 +69,9 @@ def imprimir_heap(heap, n=None):
 
 
 def recorrido_dfs_grado(grafo):
+    """ Recorrido dfs para calcular centralidad aproximada d
+    un grafo (grados de vértices).
+    Precondiciones: el grafo no debe estar vacío. """
     visitados = set()
     centralidad = {}
 
@@ -72,6 +83,7 @@ def recorrido_dfs_grado(grafo):
 
 
 def dfs_grados(grafo, v, visitados, centralidad):
+    """ Función recursiva de recorrido_dfs_grado."""
     visitados.add(v)
     centralidad[v] = grafo.obtener_grado(v)
 
@@ -81,6 +93,8 @@ def dfs_grados(grafo, v, visitados, centralidad):
 
 
 def pasar_dic_a_lista(diccionario):
+    """ convierte un diccionario recibido por parámetro
+    en un lista de tuplas del formato (valor,clave) """
     lista = []
     for clave in diccionario:
         valor = diccionario[clave]
@@ -89,7 +103,10 @@ def pasar_dic_a_lista(diccionario):
     return lista
 
 
-def imprimir_lista(lista, n=None):
+def imprimir_lista(lista, n = None):
+    """ Recibe una lista y, opcionalmente, un número n
+    de elementos a imprimir de la lista, desde la posición 0.
+    De no recibirse n, se imprime toda al lista. """
     if n == None or n > len(lista):
         n = len(lista)
     sep = ', '
@@ -99,13 +116,20 @@ def imprimir_lista(lista, n=None):
         print(lista[i][1], end=sep)
 
 
-def generar_orden_aleatorio(grafo):
+def generar_orden_aleatorio_vertices(grafo):
+    """ Genera un orden aleatorio de vértices del grafo.
+    Devuelve una lista. """
     vertices = grafo.obtener_vertices()
     random.shuffle(vertices)
     return vertices
 
 
 def _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic):
+    """ Función recursiva del cálculo de centralidad por medio de PageRank.
+    Recibe un grafo, una lista de vertices_aleatorios del grafo que contiene todos 
+    los vértices ordenados de manera aleatoria sin obligación de relación de adyacencias,
+    la cantidad de vértices que tiene el grafo, la cantidad de iteraciones que desean realizarse
+    y un diccionario del pagerank de los vertices. """
     if iteraciones >= MAX_ITER_PR:
         return pr_dic
 
@@ -124,6 +148,9 @@ def _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic):
 
 
 def _n_lugares(grafo, origen, n, hijo, visitados, actual):
+    """ Función recursiva de n_lugares.
+    Recibe un grafo, un vértice origen pertenenciente al grafo, un número n de máximo de vértices
+    a recorrer, un diccionario de hijos, un set de visitados y un vértice actual"""
     if len(visitados) == n:
         return (origen in grafo.obtener_adyacentes(actual))
 
@@ -138,6 +165,10 @@ def _n_lugares(grafo, origen, n, hijo, visitados, actual):
 
 
 def generar_camino_circular(hijo, origen):
+    """ A partir de un diccionario de hijos que marca un camino entre vértices
+    y un vértice de origen, genera el camino total y lo guarda en una lista
+    que luego devuelve.
+    Postcond: la lista será circular: el primer y el último elemento serán el mismo. """
     camino = []
     actual = origen
     while actual != None:
@@ -324,12 +355,18 @@ def listar_operaciones(operaciones):
 
 
 def betweeness_centrality(grafo, n):
+    """ Calcula la centralidad exacta de los vértices del grafo e 
+    imprime los n más importantes de orden mayor a menor.
+    Precond: el grafo no debe estar vacío, n debe ser un número entero."""
     centr = centralidad(grafo)        # O(V*ElogV)
     heap = ordenar_vertices(centr)    # O(V)
     imprimir_heap(heap, n)         # O(V)
 
 
 def betweeness_centrality_aproximada(grafo, n):             # O(V+E) total
+    """ Calcula la Centralidad aproximada de los vértices del grafo e
+    imprime los n más importantes de orden mayor a menor.
+    Precond: el grafo no debe estar vacío, n debe ser un número entero."""
     dic_centralidad = recorrido_dfs_grado(grafo)            # O(V+E)
     lista_centralidad = pasar_dic_a_lista(dic_centralidad)  # O(V)
     lista_centralidad.sort(reverse=True)                  # O(V)
@@ -337,7 +374,11 @@ def betweeness_centrality_aproximada(grafo, n):             # O(V+E) total
 
 
 def pagerank(grafo, n):
-    vertices_aleatorios = generar_orden_aleatorio(grafo)
+    """ Calcula la centralidad por medio de PageRank e imprime los n 
+    más importantes de orden mayor a menor.
+    Recibe un grafo y un número n de vértices del grafo a imprimir con
+    la mayor centralidad. """
+    vertices_aleatorios = generar_orden_aleatorio_vertices(grafo)
     pr_dic = {}
 
     for v in vertices_aleatorios:
@@ -353,6 +394,11 @@ def pagerank(grafo, n):
 
 
 def n_lugares(grafo, aeropuertos, origen, n):
+    """ Encuentra un camino circular de n vértices dentro de un grafo comenzando desde
+    el origen pasado por parámetro.
+    Recibe un grafo, diccionario de sus aeropuertos, un número n de máximo de vértices
+    a recorrer"""
+
     if n < 3 and n != 1:
         print("No se encontro recorrido")
         return []

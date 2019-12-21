@@ -299,13 +299,6 @@ def procesar_archivos(archivo_aeropuertos, archivo_vuelos, dic_aeropuertos, aero
 
     return grafo_tiempo, grafo_precio, grafo_vuelos
 
-
-def generar_archivos_cm(caminos_minimos):
-    for camino in caminos_minimos:
-        with open(caminos_minimos[camino], 'w') as archivo:
-            archivo.write("{}")
-
-
 def imprimir_camino(camino, separador=" "):
     for i in range(len(camino)-1):
         print(camino[i], end=separador)
@@ -317,11 +310,11 @@ def camino_minimo(grafo, aeropuertos, archivo_caminos, origen, destino, pesado=T
     distancia_min = float('inf')
     camino_min = []
 
-    with open(archivo_caminos) as caminos:
-        try:
+    try:
+        with open(archivo_caminos) as caminos:
             caminos_calculados = json.load(caminos)
-        except:
-            caminos_calculados = {}
+    except:
+        caminos_calculados = {}
 
     if origen in caminos_calculados and destino in caminos_calculados[origen]:
         return caminos_calculados[origen][destino]
@@ -329,7 +322,7 @@ def camino_minimo(grafo, aeropuertos, archivo_caminos, origen, destino, pesado=T
     for ae_origen in aeropuertos[origen]:
         for ae_destino in aeropuertos[destino]:
             if pesado:
-                padres, orden = dijkstra(grafo, ae_origen, ae_destino)
+                padres, orden = dijkstra(grafo, ae_origen, destino=ae_destino)
             else:
                 padres, orden = bfs(grafo, ae_origen, ae_destino)
 

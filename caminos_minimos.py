@@ -82,7 +82,7 @@ def dijkstra(grafo, origen, destino=None, funcion=None):    # .Camino mínimo
         if destino and v == destino:
             break
         for w in grafo.obtener_adyacentes(v):
-            peso = funcion(grafo.obtener_peso(v, w))
+            peso = grafo.obtener_peso(v, w)
             if funcion:
                 peso = funcion(peso)
             if distancia[v] + peso < distancia[w]:

@@ -127,7 +127,8 @@ def _n_lugares(grafo, origen, n, hijo, visitados, actual):
     if len(visitados) == n:
         return (origen in grafo.obtener_adyacentes(actual))
 
-    for w in grafo.obtener_adyacentes(actual): #if w in visitados and w != origen: continue
+    # if w in visitados and w != origen: continue
+    for w in grafo.obtener_adyacentes(actual):
         visitados.add(w)
         hijo[actual] = w
         if _n_lugares(grafo, origen, n, hijo, visitados, w):
@@ -176,7 +177,8 @@ def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vu
         pagerank(grafo_vuelos, int(parametros[0]))
 
     elif operacion == "nueva_aerolinea":
-        camino = nueva_aerolinea(parametros[0], grafo_precio)  # modificar
+        camino = nueva_aerolinea(
+            parametros[0], grafo_precio, grafo_tiempo, grafo_vuelos)  # modificar
         print("OK")
 
     elif operacion == "recorrer_mundo":
@@ -261,7 +263,7 @@ def procesar_archivos(archivo_aeropuertos, archivo_vuelos, dic_aeropuertos, aero
         for origen, destino, tiempo, precio, cant_vuelos in vuelos:
             grafo_tiempo.agregar_arista(origen, destino, float(tiempo))
             grafo_precio.agregar_arista(origen, destino, float(precio))
-            grafo_vuelos.agregar_arista(origen, destino, float(cant_vuelos))
+            grafo_vuelos.agregar_arista(origen, destino, 1/float(cant_vuelos))
 
     return grafo_tiempo, grafo_precio, grafo_vuelos
 
@@ -364,7 +366,7 @@ def n_lugares(grafo, aeropuertos, origen, n):
         visitados = set()
         visitados.add(aeropuerto_origen)
         if _n_lugares(grafo, aeropuerto_origen, n, hijo, visitados, aeropuerto_origen):
-            print("hijo",hijo)
+            print("hijo", hijo)
             return generar_camino_circular(hijo, aeropuerto_origen)
 
     print("No se encontro recorrido")
@@ -381,7 +383,7 @@ def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos, cami
         for ciudad_a, ciudad_b in itinerario:
             grafo_ciudades.agregar_arista(ciudad_a, ciudad_b)
 
-    orden = orden_topologico(grafo_ciudades)
+    orden = orden_topologico_dfs(grafo_ciudades)
     imprimir_camino(orden, ', ')
     camino_total = []
 
@@ -432,14 +434,24 @@ def exportar_kml(archivo, camino, aeropuertos):
         kml.write(fin)
 
 
-def nueva_aerolinea(archivo, grafo):
-    mst = prim(grafo, True)
-    camino_total = []
+def nueva_aerolinea(archivo, grafo_precio, grafo_tiempo, grafo_vuelos):
+    mst = prim(grafo_precio)
+
+    visitados = set()
+    camino = []
 
     with open(archivo, 'w') as ruta:
         ruta = csv.writer(ruta)
 
         for origen in mst:
+            camino.append(origen)
             for destino in mst.obtener_adyacentes(origen):
-                tiempo, precio, frecuencia = mst.obtener_peso(origen, destino)
-                ruta.writerow([origen, destino, tiempo, precio, frecuencia])
+                if (origen, destino) in visitados or (destino, origen) in visitados:
+                    continue
+                tiempo = grafo_tiempo.obtener_peso(origen, destino)
+                precio = grafo_precio.obtener_peso(origen, destino)
+                vuelos = 1/grafo_vuelos.obtener_peso(origen, destino)
+                visitados.add((origen, destino))
+                camino.append(destino)
+                ruta.writerow([origen, destino, tiempo, precio, vuelos])
+    return camino

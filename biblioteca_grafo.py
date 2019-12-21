@@ -1,9 +1,27 @@
 from grafo import Grafo
 from heapq import *
 from queue import Queue
+from pila import Pila
 
 
-def orden_topologico(grafo):
+def _orden_topologico_dfs(grafo, v, pila, visitados):
+    visitados.add(v)
+    for w in grafo.obtener_adyacentes(v):
+        if w not in visitados:
+            _orden_topologico_dfs(grafo, w, pila, visitados)
+    pila.apilar(v)
+
+
+def orden_topologico_dfs(grafo):
+    visitados = set()
+    pila = Pila()
+    for v in grafo:
+        if v not in visitados:
+            _orden_topologico_dfs(grafo, v, pila, visitados)
+    return pila.convertir_a_lista()
+
+
+def orden_topologico_bfs(grafo):
     grados = {}
 
     for v in grafo:
@@ -31,7 +49,6 @@ def orden_topologico(grafo):
 
             if grados[w] == 0:
                 q.put(w)
-
 
     return orden if len(orden) == len(grafo) else None
 

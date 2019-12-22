@@ -157,6 +157,8 @@ def _n_lugares(grafo, aerop_ciudad_origen, origen, n, hijo, visitados, actual):
     if actual in visitados:
         return False
 
+    # Si mi lista de visitados tiene n-1 elementos, analizo el elemento actual
+    # que aún no fue guardado a ver si me sirve. Si no, returneo False y elijo otro
     if len(visitados) == n-1:
 
         adyacentes_act = grafo.obtener_adyacentes(actual)
@@ -405,7 +407,7 @@ def pagerank(grafo, n):
 def n_lugares(grafo, aeropuertos, origen, n):
     """ Encuentra un camino circular de n vértices dentro de un grafo comenzando desde
     el origen pasado por parámetro.
-    Recibe un grafo, diccionario de sus aeropuertos, un número n de máximo de vértices
+    Recibe un grafo, diccionario de sus aeropuertos, un origen, un número n de máximo de vértices
     a recorrer"""
     if n == 1:
         return [origen]
@@ -418,6 +420,8 @@ def n_lugares(grafo, aeropuertos, origen, n):
         print("No se encontro recorrido")
         return []
 
+    # Considero que a mayor cant de adyacentes, más probable es encontrar un camino y que tarde menos.
+    # Entonces se ordena por cantidad de adyacentes y se le da prioridad a los que tiene más.
     lista_aerop = [(len(grafo.obtener_adyacentes(aerop)),aerop) for aerop in aeropuertos[origen] ]    
     lista_aerop.sort(reverse = True)
     
@@ -526,32 +530,3 @@ def nueva_aerolinea(archivo, grafo_precio, grafo_tiempo, grafo_vuelos):
                 camino.append(destino)
                 ruta.writerow([origen, destino, tiempo, precio, vuelos])
     return camino
-#
-#A = 'a'
-#B = 'b'
-#C = 'c'
-#D = 'd'
-#E = 'e'
-#F = 'f'
-#G = 'g'
-#grafo = Grafo()
-#grafo.agregar_vertice(A)
-#grafo.agregar_vertice(B)
-#grafo.agregar_vertice(C)
-#grafo.agregar_vertice(D)
-#grafo.agregar_vertice(E)
-#grafo.agregar_vertice(F)
-#grafo.agregar_vertice(G)
-#grafo.agregar_arista(A,C,1)
-#grafo.agregar_arista(A,E,2)
-#grafo.agregar_arista(A,B,1)
-#grafo.agregar_arista(C,D,1)
-#grafo.agregar_arista(D,B,1)
-#grafo.agregar_arista(B,F,1)
-#grafo.agregar_arista(D,E,1)
-#grafo.agregar_arista(E,F,1)
-#grafo.agregar_arista(C,G,1)
-#grafo.agregar_arista(D,G,1)
-#
-#aerop = {'NY':{A,C},'WDC':{D},'TX':{B},'FL':{F},'LA':{E}, 'NS':{G}}
-#print(n_lugares(grafo,aerop, 'NY',3))

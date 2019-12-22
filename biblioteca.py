@@ -238,7 +238,6 @@ def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vu
     elif operacion == "itinerario":
         camino = itinerario_cultural(
             parametros[0], grafo_tiempo, aeropuertos_por_ciudad)
-        print("OK")
 
     elif operacion == "exportar_kml":
         exportar_kml(parametros[0], parametros[1], parametros[2])

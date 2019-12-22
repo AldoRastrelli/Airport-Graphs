@@ -154,26 +154,27 @@ def _n_lugares(grafo, aerop_ciudad_origen, origen, n, hijo, visitados, actual):
     Recibe un grafo, un vértice origen pertenenciente al grafo, un número n de máximo de vértices
     a recorrer, un diccionario de hijos, un set de visitados y un vértice actual"""
 
-    if len(visitados) == n-1:
-        adyacentes_act = grafo.obtener_adyacentes(actual)
-
-        for aerop in aerop_ciudad_origen:
-            if aerop in adyacentes_act and actual not in visitados:
-                visitados.add(actual)
-                hijo[actual] = None
-                return True
-            else:
-                return False
-
-    if actual in visitados and actual != origen:
+    if actual in visitados:
         return False
+
+    if len(visitados) == n-1:
+
+        adyacentes_act = grafo.obtener_adyacentes(actual)
+        if origen in adyacentes_act and actual not in visitados:
+            visitados.add(actual)
+            hijo[actual] = None
+            return True
+        else:
+            return False
+
     visitados.add(actual)
     for w in grafo.obtener_adyacentes(actual):
-        if (len(visitados) == n-1 and origen not in grafo.obtener_adyacentes(w)):
+        if w in visitados or len(grafo.obtener_adyacentes(w)) == 1:
             continue
         hijo[actual] = w
         if _n_lugares(grafo, aerop_ciudad_origen, origen, n, hijo, visitados, w):
             return True
+
     visitados.remove(actual)
     hijo.pop(actual, None)
     return False
@@ -213,13 +214,13 @@ def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vu
         imprimir_camino(camino, SEP_CAMINO)
 
     elif operacion == "centralidad":
-        betweeness_centrality(grafo_vuelos, int(parametros[0]))
+        betweeness_centrality(grafo_vuelos, int(float(parametros[0])))
 
     elif operacion == "centralidad_aprox":
-        betweeness_centrality_aproximada(grafo_vuelos, int(parametros[0]))
+        betweeness_centrality_aproximada(grafo_vuelos, int(float(parametros[0])))
 
     elif operacion == "pagerank":
-        pagerank(grafo_vuelos_dirigidos, int(parametros[0]))
+        pagerank(grafo_vuelos_dirigidos, int(float(parametros[0])))
 
     elif operacion == "nueva_aerolinea":
         camino = nueva_aerolinea(
@@ -228,8 +229,9 @@ def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vu
 
     elif operacion == "vacaciones":
         camino = n_lugares(grafo_vuelos, aeropuertos_por_ciudad,
-                           parametros[0], int(parametros[1]))
-        imprimir_camino(camino, SEP_CAMINO)
+                           parametros[0], int(float(parametros[1])))
+        if len(camino) > 0:
+            imprimir_camino(camino, SEP_CAMINO)
 
     elif operacion == "itinerario":
         camino = itinerario_cultural(
@@ -297,7 +299,7 @@ def procesar_archivos(archivo_aeropuertos, archivo_vuelos, dic_aeropuertos, aero
                 aeropuertos_por_ciudad[ciudad] = {codigo_aeropuerto}
 
             aeropuerto = Aeropuerto(
-                codigo_aeropuerto, ciudad, float(latitud), float(longitud))
+                codigo_aeropuerto, ciudad, int(float(latitud)), int(float(longitud)))
             dic_aeropuertos[codigo_aeropuerto] = aeropuerto
             grafo_tiempo.agregar_vertice(aeropuerto)
             grafo_precio.agregar_vertice(aeropuerto)
@@ -308,10 +310,10 @@ def procesar_archivos(archivo_aeropuertos, archivo_vuelos, dic_aeropuertos, aero
         vuelos = csv.reader(vuelos)
 
         for origen, destino, tiempo, precio, cant_vuelos in vuelos:
-            grafo_tiempo.agregar_arista(origen, destino, float(tiempo))
-            grafo_precio.agregar_arista(origen, destino, float(precio))
-            grafo_vuelos.agregar_arista(origen, destino, float(cant_vuelos))
-            grafo_vuelos_dirigidos.agregar_arista(origen, destino, float(cant_vuelos))
+            grafo_tiempo.agregar_arista(origen, destino, int(float(tiempo)))
+            grafo_precio.agregar_arista(origen, destino, int(float(precio)))
+            grafo_vuelos.agregar_arista(origen, destino, int(float(cant_vuelos)))
+            grafo_vuelos_dirigidos.agregar_arista(origen, destino, int(float(cant_vuelos)))
 
     return grafo_tiempo, grafo_precio, grafo_vuelos, grafo_vuelos_dirigidos
 
@@ -405,18 +407,23 @@ def n_lugares(grafo, aeropuertos, origen, n):
     el origen pasado por parámetro.
     Recibe un grafo, diccionario de sus aeropuertos, un número n de máximo de vértices
     a recorrer"""
-
     if n == 1:
         return [origen]
 
     if n < 3:
         print("No se encontro recorrido")
         return []
+    
+    if origen not in aeropuertos:
+        print("No se encontro recorrido")
+        return []
 
-    for aeropuerto_origen in aeropuertos[origen]:
+    lista_aerop = [(len(grafo.obtener_adyacentes(aerop)),aerop) for aerop in aeropuertos[origen] ]    
+    lista_aerop.sort(reverse = True)
+    
+    for grado_aerop, aeropuerto_origen in lista_aerop:
         hijo = {}
         visitados = set()
-        visitados.add(aeropuerto_origen)
         if _n_lugares(grafo, aeropuertos[origen], aeropuerto_origen, n, hijo, visitados, aeropuerto_origen):
             return generar_camino_circular(hijo, aeropuerto_origen)
 
@@ -519,3 +526,32 @@ def nueva_aerolinea(archivo, grafo_precio, grafo_tiempo, grafo_vuelos):
                 camino.append(destino)
                 ruta.writerow([origen, destino, tiempo, precio, vuelos])
     return camino
+#
+#A = 'a'
+#B = 'b'
+#C = 'c'
+#D = 'd'
+#E = 'e'
+#F = 'f'
+#G = 'g'
+#grafo = Grafo()
+#grafo.agregar_vertice(A)
+#grafo.agregar_vertice(B)
+#grafo.agregar_vertice(C)
+#grafo.agregar_vertice(D)
+#grafo.agregar_vertice(E)
+#grafo.agregar_vertice(F)
+#grafo.agregar_vertice(G)
+#grafo.agregar_arista(A,C,1)
+#grafo.agregar_arista(A,E,2)
+#grafo.agregar_arista(A,B,1)
+#grafo.agregar_arista(C,D,1)
+#grafo.agregar_arista(D,B,1)
+#grafo.agregar_arista(B,F,1)
+#grafo.agregar_arista(D,E,1)
+#grafo.agregar_arista(E,F,1)
+#grafo.agregar_arista(C,G,1)
+#grafo.agregar_arista(D,G,1)
+#
+#aerop = {'NY':{A,C},'WDC':{D},'TX':{B},'FL':{F},'LA':{E}, 'NS':{G}}
+#print(n_lugares(grafo,aerop, 'NY',3))

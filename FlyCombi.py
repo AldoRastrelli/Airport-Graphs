@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import sys
 import csv
 from biblioteca import *
@@ -37,7 +39,7 @@ def main():
 
         except Exception as e:
             print(f"comando erróneo: '{comando}'")
-            raise e
+            print(e)
 
 
 main()

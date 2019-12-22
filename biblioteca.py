@@ -308,10 +308,10 @@ def procesar_archivos(archivo_aeropuertos, archivo_vuelos, dic_aeropuertos, aero
         vuelos = csv.reader(vuelos)
 
         for origen, destino, tiempo, precio, cant_vuelos in vuelos:
-            grafo_tiempo.agregar_arista(origen, destino, float(tiempo))
-            grafo_precio.agregar_arista(origen, destino, float(precio))
-            grafo_vuelos.agregar_arista(origen, destino, float(cant_vuelos))
-            grafo_vuelos_dirigidos.agregar_arista(origen, destino, float(cant_vuelos))
+            grafo_tiempo.agregar_arista(origen, destino, int(tiempo))
+            grafo_precio.agregar_arista(origen, destino, int(precio))
+            grafo_vuelos.agregar_arista(origen, destino, int(cant_vuelos))
+            grafo_vuelos_dirigidos.agregar_arista(origen, destino, int(cant_vuelos))
 
     return grafo_tiempo, grafo_precio, grafo_vuelos, grafo_vuelos_dirigidos
 

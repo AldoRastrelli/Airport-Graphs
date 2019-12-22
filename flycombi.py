@@ -38,7 +38,7 @@ def main():
 
         except Exception as e:
             print(f"comando erróneo: '{comando}'")
-            raise e
+            print(e)
 
 
 main()

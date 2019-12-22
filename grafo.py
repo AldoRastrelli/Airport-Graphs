@@ -1,11 +1,12 @@
-from random import sample
+from random import choice
 from collections import defaultdict
 
 
 class Grafo:
     def __init__(self, dirigido=False, lista_vertices=[]):
         self.vertices = defaultdict(dict)
-        self.grado = defaultdict(dict) # Si es dirigido, sólo suma el grado de entrada
+        # Si es dirigido, sólo suma el grado de entrada
+        self.grado = defaultdict(dict)
         self.dirigido = dirigido
         for v in lista_vertices:
             self.agregar_vertice(v)
@@ -31,12 +32,21 @@ class Grafo:
     def obtener_vertices(self):
         return list(self.vertices)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> c575d704eb229361d9bb32f09657216236dca926
     def obtener_adyacentes(self, v):
         if v not in self.vertices:
             return []
         else:
             return list(self.vertices[v])
+
+    def cantidad_adyacentes(self, v):
+        if v not in self.vertices:
+            return -1
+        else:
+            return len(self.vertices[v])
 
     def obtener_peso(self, v1, v2):
         if (v1 not in self.vertices) or (v2 not in self.vertices):
@@ -47,14 +57,14 @@ class Grafo:
             return None
         else:
             return self.vertices[v1][v2]
-            
-    def obtener_grado(self,v):
+
+    def obtener_grado(self, v):
         if v not in self.vertices:
             return None
         return self.grado[v]
 
     def vertice_aleatorio(self):
-        return sample(self.obtener_vertices(),1)[0]
+        return choice(self.obtener_vertices())
 
     def __contains__(self, v):
         return v in self.vertices
@@ -67,4 +77,3 @@ class Grafo:
 
     def __len__(self):
         return len(self.vertices)
-

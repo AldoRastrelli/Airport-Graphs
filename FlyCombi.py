@@ -2,16 +2,13 @@ import sys
 import csv
 from biblioteca import *
 
-OPERACIONES = {"camino_mas", "camino_escalas", "centralidad_aprox", "pagerank", "centralidad",
-               "nueva_aerolinea", "recorrer_mundo", "recorrer_mundo_aprox", "vacaciones", "itinerario", "exportar_kml"}
+OPERACIONES = {"camino_mas", "camino_escalas", "centralidad_aprox", "pagerank",
+               "centralidad", "nueva_aerolinea", "vacaciones", "itinerario", "exportar_kml"}
 
 
 def main():
     archivo_aeropuertos = sys.argv[1]
     archivo_vuelos = sys.argv[2]
-
-    caminos_minimos = {"escalas": "cmescalas.json",
-                       "precio": "cmprecio.json", "tiempo": "cmtiempo.json"}
 
     aeropuertos = {}
     aeropuertos_por_ciudad = {}
@@ -36,11 +33,15 @@ def main():
                 parametros.extend([camino_anterior, aeropuertos])
 
             camino_anterior = ejecutar_comando(
+<<<<<<< HEAD
                 operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, grafo_vuelos_dirigidos, aeropuertos_por_ciudad, caminos_minimos)
+=======
+                operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, aeropuertos_por_ciudad)
+>>>>>>> c575d704eb229361d9bb32f09657216236dca926
 
         except Exception as e:
             print(f"comando erróneo: '{comando}'")
-            raise(e)
+            raise e
 
 
 main()

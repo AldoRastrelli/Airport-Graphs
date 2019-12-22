@@ -50,7 +50,7 @@ def ordenar_vertices(diccionario):
     for tupla in diccionario.items():
         if tupla[1] == float('inf'):
             continue
-        tupla_invertida = (tupla[1], tupla[0])
+        tupla_invertida = (-tupla[1], tupla[0])
         lista.append(tupla_invertida)
     heapify(lista)
     return lista
@@ -148,21 +148,32 @@ def _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic):
     return _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones + 1, pr_dic)
 
 
-def _n_lugares(grafo, origen, n, hijo, visitados, actual):
-    """ Función recursiva de n_lugares.
+def _n_lugares(grafo, origen, n, hijo, visitados, actual,it=0):
+    """ Función auxiliar de n_lugares.
     Recibe un grafo, un vértice origen pertenenciente al grafo, un número n de máximo de vértices
     a recorrer, un diccionario de hijos, un set de visitados y un vértice actual"""
-    if len(visitados) == n:
-        return (origen in grafo.obtener_adyacentes(actual))
-
-    # if w in visitados and w != origen: continue
-    for w in grafo.obtener_adyacentes(actual):
-        visitados.add(w)
-        hijo[actual] = w
-        if _n_lugares(grafo, origen, n, hijo, visitados, w):
-            hijo[w] = None
+    if it == 30:
+        return False
+    if len(visitados) == n-1:
+        if (origen in grafo.obtener_adyacentes(actual) and actual not in visitados):
+            visitados.add(actual)
+            hijo[actual] = None
             return True
-        visitados.remove(w)
+        else:
+            return False
+
+    print(actual)
+    if actual in visitados and actual != origen:
+        return False
+    visitados.add(actual)
+    for w in grafo.obtener_adyacentes(actual):
+        if (len(visitados)== n-1 and origen not in grafo.obtener_adyacentes(w)):
+            continue
+        hijo[actual] = w
+        if _n_lugares(grafo, origen, n, hijo, visitados, w,it+1):
+            return True
+    visitados.remove(actual)
+    hijo.pop(actual,None)
     return False
 
 
@@ -180,23 +191,23 @@ def generar_camino_circular(hijo, origen):
     return camino
 
 
-def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, aeropuertos, caminos):
+def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, aeropuertos_por_ciudad, caminos):
     camino = []
 
     if operacion == "camino_mas":
         modo = parametros[0]
         if modo == "rapido":
             camino = camino_minimo(
-                grafo_tiempo, aeropuertos, caminos["tiempo"], parametros[1], parametros[2])
+                grafo_tiempo, aeropuertos_por_ciudad, caminos["tiempo"], parametros[1], parametros[2])
 
         elif modo == "barato":
             camino = camino_minimo(
-                grafo_precio, aeropuertos, caminos["precio"], parametros[1], parametros[2])
+                grafo_precio, aeropuertos_por_ciudad, caminos["precio"], parametros[1], parametros[2])
         imprimir_camino(camino, SEP_CAMINO)
 
     elif operacion == "camino_escalas":
         camino = camino_minimo(
-            grafo_vuelos, aeropuertos, caminos["escalas"], parametros[0], parametros[1], False)
+            grafo_vuelos, aeropuertos_por_ciudad, caminos["escalas"], parametros[0], parametros[1], False)
         imprimir_camino(camino, SEP_CAMINO)
 
     elif operacion == "centralidad":
@@ -220,13 +231,13 @@ def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vu
         return camino
 
     elif operacion == "vacaciones":
-        camino = n_lugares(grafo_vuelos, aeropuertos,
+        camino = n_lugares(grafo_vuelos, aeropuertos_por_ciudad,
                            parametros[0], int(parametros[1]))
         imprimir_camino(camino, SEP_CAMINO)
 
     elif operacion == "itinerario":
         camino = itinerario_cultural(
-            parametros[0], grafo_vuelos, aeropuertos, caminos["escalas"])
+            parametros[0], grafo_vuelos, aeropuertos_por_ciudad, caminos["escalas"])
         print("OK")
 
     elif operacion == "exportar_kml":
@@ -404,12 +415,11 @@ def n_lugares(grafo, aeropuertos, origen, n):
         return [origen]
 
     for aeropuerto_origen in aeropuertos[origen]:
-        print(aeropuerto_origen)
         hijo = {}
         visitados = set()
         visitados.add(aeropuerto_origen)
+        print(f"Seguidilla: ")
         if _n_lugares(grafo, aeropuerto_origen, n, hijo, visitados, aeropuerto_origen):
-            print("hijo", hijo)
             return generar_camino_circular(hijo, aeropuerto_origen)
 
     print("No se encontro recorrido")

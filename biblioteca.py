@@ -16,7 +16,7 @@ SEP_CAMINO = ' -> '
 
 
 def centralidad(grafo):
-    """Calcula la centralidad de los vértices de un grafo de manera exacta y 
+    """Calcula la centralidad de los vértices de un grafo de manera exacta y
     devuelve un diccionario con los valores. Recibe un grafo por parámetro.
     Precondiciones: el grafo no debe ser vacío. """
     cent = {}
@@ -127,7 +127,7 @@ def generar_orden_aleatorio_vertices(grafo):
 
 def _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic):
     """ Función recursiva del cálculo de centralidad por medio de PageRank.
-    Recibe un grafo, una lista de vertices_aleatorios del grafo que contiene todos 
+    Recibe un grafo, una lista de vertices_aleatorios del grafo que contiene todos
     los vértices ordenados de manera aleatoria sin obligación de relación de adyacencias,
     la cantidad de vértices que tiene el grafo, la cantidad de iteraciones que desean realizarse
     y un diccionario del pagerank de los vertices. """
@@ -146,7 +146,6 @@ def _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic):
         pr_dic[v] = pr_aux[v]
 
     return _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones + 1, pr_dic)
-
 
 
 def _n_lugares(grafo, aerop_ciudad_origen, origen, n, hijo, visitados, actual):
@@ -217,7 +216,8 @@ def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vu
         betweeness_centrality(grafo_vuelos, int(float(parametros[0])))
 
     elif operacion == "centralidad_aprox":
-        betweeness_centrality_aproximada(grafo_vuelos, int(float(parametros[0])))
+        betweeness_centrality_aproximada(
+            grafo_vuelos, int(float(parametros[0])))
 
     elif operacion == "pagerank":
         pagerank(grafo_vuelos_dirigidos, int(float(parametros[0])))
@@ -235,7 +235,7 @@ def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vu
 
     elif operacion == "itinerario":
         camino = itinerario_cultural(
-            parametros[0], grafo_vuelos, aeropuertos_por_ciudad)
+            parametros[0], grafo_tiempo, aeropuertos_por_ciudad)
         print("OK")
 
     elif operacion == "exportar_kml":
@@ -299,7 +299,7 @@ def procesar_archivos(archivo_aeropuertos, archivo_vuelos, dic_aeropuertos, aero
                 aeropuertos_por_ciudad[ciudad] = {codigo_aeropuerto}
 
             aeropuerto = Aeropuerto(
-                codigo_aeropuerto, ciudad, int(float(latitud)), int(float(longitud)))
+                codigo_aeropuerto, ciudad, float(latitud), float(longitud))
             dic_aeropuertos[codigo_aeropuerto] = aeropuerto
             grafo_tiempo.agregar_vertice(aeropuerto)
             grafo_precio.agregar_vertice(aeropuerto)
@@ -312,8 +312,10 @@ def procesar_archivos(archivo_aeropuertos, archivo_vuelos, dic_aeropuertos, aero
         for origen, destino, tiempo, precio, cant_vuelos in vuelos:
             grafo_tiempo.agregar_arista(origen, destino, int(float(tiempo)))
             grafo_precio.agregar_arista(origen, destino, int(float(precio)))
-            grafo_vuelos.agregar_arista(origen, destino, int(float(cant_vuelos)))
-            grafo_vuelos_dirigidos.agregar_arista(origen, destino, int(float(cant_vuelos)))
+            grafo_vuelos.agregar_arista(
+                origen, destino, int(float(cant_vuelos)))
+            grafo_vuelos_dirigidos.agregar_arista(
+                origen, destino, int(float(cant_vuelos)))
 
     return grafo_tiempo, grafo_precio, grafo_vuelos, grafo_vuelos_dirigidos
 
@@ -364,7 +366,7 @@ def listar_operaciones(operaciones):
 
 
 def betweeness_centrality(grafo, n):
-    """ Calcula la centralidad exacta de los vértices del grafo e 
+    """ Calcula la centralidad exacta de los vértices del grafo e
     imprime los n más importantes de orden mayor a menor.
     Precond: el grafo no debe estar vacío, n debe ser un número entero."""
     centr = centralidad(grafo)        # O(V*ElogV)
@@ -383,7 +385,7 @@ def betweeness_centrality_aproximada(grafo, n):             # O(V+E) total
 
 
 def pagerank(grafo, n):
-    """ Calcula la centralidad por medio de PageRank e imprime los n 
+    """ Calcula la centralidad por medio de PageRank e imprime los n
     más importantes de orden mayor a menor.
     Recibe un grafo y un número n de vértices del grafo a imprimir con
     la mayor centralidad. """
@@ -413,14 +415,15 @@ def n_lugares(grafo, aeropuertos, origen, n):
     if n < 3:
         print("No se encontro recorrido")
         return []
-    
+
     if origen not in aeropuertos:
         print("No se encontro recorrido")
         return []
 
-    lista_aerop = [(len(grafo.obtener_adyacentes(aerop)),aerop) for aerop in aeropuertos[origen] ]    
-    lista_aerop.sort(reverse = True)
-    
+    lista_aerop = [(len(grafo.obtener_adyacentes(aerop)), aerop)
+                   for aerop in aeropuertos[origen]]
+    lista_aerop.sort(reverse=True)
+
     for grado_aerop, aeropuerto_origen in lista_aerop:
         hijo = {}
         visitados = set()
@@ -454,7 +457,7 @@ def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos):
     for i in range(len(orden)-1):
         origen, destino = orden[i], orden[i+1]
         camino_min = camino_minimo(
-            grafo_aeropuertos, aeropuertos, origen, destino, False)
+            grafo_aeropuertos, aeropuertos, origen, destino, True)
         camino_total.extend(camino_min)
         if i != len(orden)-2:
             camino_total.pop()
@@ -526,32 +529,3 @@ def nueva_aerolinea(archivo, grafo_precio, grafo_tiempo, grafo_vuelos):
                 camino.append(destino)
                 ruta.writerow([origen, destino, tiempo, precio, vuelos])
     return camino
-#
-#A = 'a'
-#B = 'b'
-#C = 'c'
-#D = 'd'
-#E = 'e'
-#F = 'f'
-#G = 'g'
-#grafo = Grafo()
-#grafo.agregar_vertice(A)
-#grafo.agregar_vertice(B)
-#grafo.agregar_vertice(C)
-#grafo.agregar_vertice(D)
-#grafo.agregar_vertice(E)
-#grafo.agregar_vertice(F)
-#grafo.agregar_vertice(G)
-#grafo.agregar_arista(A,C,1)
-#grafo.agregar_arista(A,E,2)
-#grafo.agregar_arista(A,B,1)
-#grafo.agregar_arista(C,D,1)
-#grafo.agregar_arista(D,B,1)
-#grafo.agregar_arista(B,F,1)
-#grafo.agregar_arista(D,E,1)
-#grafo.agregar_arista(E,F,1)
-#grafo.agregar_arista(C,G,1)
-#grafo.agregar_arista(D,G,1)
-#
-#aerop = {'NY':{A,C},'WDC':{D},'TX':{B},'FL':{F},'LA':{E}, 'NS':{G}}
-#print(n_lugares(grafo,aerop, 'NY',3))

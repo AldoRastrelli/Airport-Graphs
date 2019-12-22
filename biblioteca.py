@@ -148,21 +148,22 @@ def _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic):
     return _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones + 1, pr_dic)
 
 
-def _n_lugares(grafo, origen, n, hijo, visitados, actual,it=0):
+def _n_lugares(grafo, aerop_ciudad_origen, origen, n, hijo, visitados, actual):
     """ Función auxiliar de n_lugares.
     Recibe un grafo, un vértice origen pertenenciente al grafo, un número n de máximo de vértices
     a recorrer, un diccionario de hijos, un set de visitados y un vértice actual"""
-    if it == 30:
-        return False
+    
     if len(visitados) == n-1:
-        if (origen in grafo.obtener_adyacentes(actual) and actual not in visitados):
-            visitados.add(actual)
-            hijo[actual] = None
-            return True
-        else:
-            return False
+        adyacentes_act = grafo.obtener_adyacentes(actual)
 
-    print(actual)
+        for aerop in aerop_ciudad_origen:
+            if aerop in adyacentes_act and actual not in visitados:
+                visitados.add(actual)
+                hijo[actual] = None
+                return True
+            else:
+                return False
+
     if actual in visitados and actual != origen:
         return False
     visitados.add(actual)
@@ -170,11 +171,12 @@ def _n_lugares(grafo, origen, n, hijo, visitados, actual,it=0):
         if (len(visitados)== n-1 and origen not in grafo.obtener_adyacentes(w)):
             continue
         hijo[actual] = w
-        if _n_lugares(grafo, origen, n, hijo, visitados, w,it+1):
+        if _n_lugares(grafo, aerop_ciudad_origen, origen, n, hijo, visitados, w):
             return True
     visitados.remove(actual)
     hijo.pop(actual,None)
     return False
+
 
 
 def generar_camino_circular(hijo, origen):
@@ -381,7 +383,6 @@ def betweeness_centrality_aproximada(grafo, n):             # O(V+E) total
     lista_centralidad.sort(reverse=True)                  # O(V)
     imprimir_lista(lista_centralidad, n)                   # O(V)
 
-
 def pagerank(grafo, n):
     """ Calcula la centralidad por medio de PageRank e imprime los n 
     más importantes de orden mayor a menor.
@@ -397,8 +398,10 @@ def pagerank(grafo, n):
 
     dic_pagerank = _pagerank(grafo, vertices_aleatorios,
                              cant_vertices, iteraciones, pr_dic)
+    print(dic_pagerank)
     lista_pagerank = pasar_dic_a_lista(dic_pagerank)
     lista_pagerank.sort(reverse=True)
+    print("\n",lista_pagerank)
     imprimir_lista(lista_pagerank, n)
 
 
@@ -419,7 +422,7 @@ def n_lugares(grafo, aeropuertos, origen, n):
         visitados = set()
         visitados.add(aeropuerto_origen)
         print(f"Seguidilla: ")
-        if _n_lugares(grafo, aeropuerto_origen, n, hijo, visitados, aeropuerto_origen):
+        if _n_lugares(grafo, aeropuertos[origen], aeropuerto_origen, n, hijo, visitados, aeropuerto_origen):
             return generar_camino_circular(hijo, aeropuerto_origen)
 
     print("No se encontro recorrido")

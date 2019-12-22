@@ -60,7 +60,7 @@ class Grafo:
         return self.grado[v]
 
     def vertice_aleatorio(self):
-        return choice(self.vertices)
+        return choice(self.obtener_vertices())
 
     def __contains__(self, v):
         return v in self.vertices

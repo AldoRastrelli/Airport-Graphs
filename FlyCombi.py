@@ -10,9 +10,6 @@ def main():
     archivo_aeropuertos = sys.argv[1]
     archivo_vuelos = sys.argv[2]
 
-    caminos_minimos = {"escalas": "cmescalas.json",
-                       "precio": "cmprecio.json", "tiempo": "cmtiempo.json"}
-
     aeropuertos = {}
     aeropuertos_por_ciudad = {}
     grafo_tiempo, grafo_precio, grafo_vuelos = procesar_archivos(
@@ -36,10 +33,11 @@ def main():
                 parametros.extend([camino_anterior, aeropuertos])
 
             camino_anterior = ejecutar_comando(
-                operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, aeropuertos_por_ciudad, caminos_minimos)
+                operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, aeropuertos_por_ciudad)
 
-        except Exception:
+        except Exception as e:
             print(f"comando erróneo: '{comando}'")
+            raise e
 
 
 main()

@@ -1,5 +1,4 @@
 import csv
-import json
 import random
 from caminos_minimos import *
 from biblioteca_grafo import *
@@ -192,7 +191,7 @@ def generar_camino_circular(hijo, origen):
     return camino
 
 
-def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, aeropuertos_por_ciudad, caminos):
+def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, aeropuertos_por_ciudad):
     '''Ejecuta la función correspondiente a la operación recibida, con los parámetros correspondientes.
     Devuelve una lista con el recorrido devuelto por esta función.
     En caso de que no haya un recorrido, devuelve una lista vacía.
@@ -203,16 +202,16 @@ def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vu
         modo = parametros[0]
         if modo == "rapido":
             camino = camino_minimo(
-                grafo_tiempo, aeropuertos_por_ciudad, caminos["tiempo"], parametros[1], parametros[2])
+                grafo_tiempo, aeropuertos_por_ciudad, parametros[1], parametros[2])
 
         elif modo == "barato":
             camino = camino_minimo(
-                grafo_precio, aeropuertos_por_ciudad, caminos["precio"], parametros[1], parametros[2])
+                grafo_precio, aeropuertos_por_ciudad, parametros[1], parametros[2])
         imprimir_camino(camino, SEP_CAMINO)
 
     elif operacion == "camino_escalas":
         camino = camino_minimo(
-            grafo_vuelos, aeropuertos_por_ciudad, caminos["escalas"], parametros[0], parametros[1], False)
+            grafo_vuelos, aeropuertos_por_ciudad, parametros[0], parametros[1], False)
         imprimir_camino(camino, SEP_CAMINO)
 
     elif operacion == "centralidad":
@@ -226,7 +225,7 @@ def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vu
 
     elif operacion == "nueva_aerolinea":
         camino = nueva_aerolinea(
-            parametros[0], grafo_precio, grafo_tiempo, grafo_vuelos)  # modificar
+            parametros[0], grafo_precio, grafo_tiempo, grafo_vuelos)
         print("OK")
 
     elif operacion == "vacaciones":
@@ -236,13 +235,12 @@ def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vu
 
     elif operacion == "itinerario":
         camino = itinerario_cultural(
-            parametros[0], grafo_vuelos, aeropuertos_por_ciudad, caminos["escalas"])
+            parametros[0], grafo_vuelos, aeropuertos_por_ciudad)
         print("OK")
 
     elif operacion == "exportar_kml":
         exportar_kml(parametros[0], parametros[1], parametros[2])
         print("OK")
-
     return camino
 
 
@@ -325,7 +323,7 @@ def imprimir_camino(camino, separador=" "):
         print(camino[-1])
 
 
-def camino_minimo(grafo, aeropuertos, archivo_caminos, origen, destino, pesado=True):
+def camino_minimo(grafo, aeropuertos, origen, destino, pesado=True):
     '''Dado un grafo, una ciudad de origen y otra de destino
     calcula y devuelve en forma de lista el camino mínimo entre esas ciudades.
     Si el grafo es pesado, utiliza el algoritmo de Dijkstra.
@@ -334,15 +332,6 @@ def camino_minimo(grafo, aeropuertos, archivo_caminos, origen, destino, pesado=T
 
     distancia_min = float('inf')
     camino_min = []
-
-    try:
-        with open(archivo_caminos) as caminos:
-            caminos_calculados = json.load(caminos)
-    except:
-        caminos_calculados = {}
-
-    if origen in caminos_calculados and destino in caminos_calculados[origen]:
-        return caminos_calculados[origen][destino]
 
     for ae_origen in aeropuertos[origen]:
         for ae_destino in aeropuertos[destino]:
@@ -355,12 +344,6 @@ def camino_minimo(grafo, aeropuertos, archivo_caminos, origen, destino, pesado=T
             if distancia < distancia_min:
                 distancia_min = distancia
                 camino_min = camino
-
-    caminos_calculados[origen] = caminos_calculados.get(origen, {})
-    caminos_calculados[origen][destino] = camino_min
-
-    with open(archivo_caminos, 'w') as caminos:
-        json.dump(caminos_calculados, caminos)
 
     return camino_min
 
@@ -433,7 +416,6 @@ def n_lugares(grafo, aeropuertos, origen, n):
         hijo = {}
         visitados = set()
         visitados.add(aeropuerto_origen)
-        print(f"Seguidilla: ")
         if _n_lugares(grafo, aeropuertos[origen], aeropuerto_origen, n, hijo, visitados, aeropuerto_origen):
             return generar_camino_circular(hijo, aeropuerto_origen)
 
@@ -441,7 +423,7 @@ def n_lugares(grafo, aeropuertos, origen, n):
     return []
 
 
-def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos, caminos_minimos):
+def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos):
     '''Recibe un archivo existente con formato csv,
     donde la primera linea incluye las ciudades que se desea visitar,
     y las subsiguientes lineas indican qué ciudades deben ser visitadas antes de qué otras.
@@ -464,8 +446,10 @@ def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos, cami
     for i in range(len(orden)-1):
         origen, destino = orden[i], orden[i+1]
         camino_min = camino_minimo(
-            grafo_aeropuertos, aeropuertos, caminos_minimos, origen, destino, False)
-
+            grafo_aeropuertos, aeropuertos, origen, destino, False)
+        camino_total.extend(camino_min)
+        if i != len(orden)-2:
+            camino_total.pop()
         imprimir_camino(camino_min, SEP_CAMINO)
     return camino_total
 

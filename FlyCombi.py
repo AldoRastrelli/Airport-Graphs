@@ -2,8 +2,8 @@ import sys
 import csv
 from biblioteca import *
 
-OPERACIONES = {"camino_mas", "camino_escalas", "centralidad_aprox", "pagerank", "centralidad",
-               "nueva_aerolinea", "recorrer_mundo", "recorrer_mundo_aprox", "vacaciones", "itinerario", "exportar_kml"}
+OPERACIONES = {"camino_mas", "camino_escalas", "centralidad_aprox", "pagerank",
+               "centralidad", "nueva_aerolinea", "vacaciones", "itinerario", "exportar_kml"}
 
 
 def main():
@@ -38,9 +38,8 @@ def main():
             camino_anterior = ejecutar_comando(
                 operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, aeropuertos_por_ciudad, caminos_minimos)
 
-        except Exception as e:
+        except Exception:
             print(f"comando erróneo: '{comando}'")
-            raise(e)
 
 
 main()

@@ -138,7 +138,7 @@ def _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic):
     for v in vertices_aleatorios:
         sumatoria = 0
         for w in grafo.obtener_adyacentes(v):
-            sumatoria += pr_dic[w] / len(grafo.obtener_adyacentes(w))
+            sumatoria += pr_dic[w] / grafo.cantidad_adyacentes(w)
 
         pr_aux[v] = (1 - D) / cant_vertices + D * sumatoria
 
@@ -152,7 +152,7 @@ def _n_lugares(grafo, aerop_ciudad_origen, origen, n, hijo, visitados, actual):
     """ Función auxiliar de n_lugares.
     Recibe un grafo, un vértice origen pertenenciente al grafo, un número n de máximo de vértices
     a recorrer, un diccionario de hijos, un set de visitados y un vértice actual"""
-    
+
     if len(visitados) == n-1:
         adyacentes_act = grafo.obtener_adyacentes(actual)
 
@@ -168,15 +168,14 @@ def _n_lugares(grafo, aerop_ciudad_origen, origen, n, hijo, visitados, actual):
         return False
     visitados.add(actual)
     for w in grafo.obtener_adyacentes(actual):
-        if (len(visitados)== n-1 and origen not in grafo.obtener_adyacentes(w)):
+        if (len(visitados) == n-1 and origen not in grafo.obtener_adyacentes(w)):
             continue
         hijo[actual] = w
         if _n_lugares(grafo, aerop_ciudad_origen, origen, n, hijo, visitados, w):
             return True
     visitados.remove(actual)
-    hijo.pop(actual,None)
+    hijo.pop(actual, None)
     return False
-
 
 
 def generar_camino_circular(hijo, origen):
@@ -194,6 +193,10 @@ def generar_camino_circular(hijo, origen):
 
 
 def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, aeropuertos_por_ciudad, caminos):
+    '''Ejecuta la función correspondiente a la operación recibida, con los parámetros correspondientes.
+    Devuelve una lista con el recorrido devuelto por esta función.
+    En caso de que no haya un recorrido, devuelve una lista vacía.
+    '''
     camino = []
 
     if operacion == "camino_mas":
@@ -226,12 +229,6 @@ def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vu
             parametros[0], grafo_precio, grafo_tiempo, grafo_vuelos)  # modificar
         print("OK")
 
-    elif operacion == "recorrer_mundo":
-        return camino
-
-    elif operacion == "recorrer_mundo_aprox":
-        return camino
-
     elif operacion == "vacaciones":
         camino = n_lugares(grafo_vuelos, aeropuertos_por_ciudad,
                            parametros[0], int(parametros[1]))
@@ -250,6 +247,11 @@ def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vu
 
 
 def formatear_comando(comando):
+    '''Dado el comando recibido por parámetro, una cadena sin salto de línea,
+    devuelve una tupla con la operación a realizar,
+    y una lista con los parámetros que debe recibir dicha operación.
+    Lanza una excepción en caso de que el comando sea inválido.
+    '''
     comandos = comando.split(',')
     long = len(comandos)
     operacion = comandos[0]
@@ -275,14 +277,16 @@ def formatear_comando(comando):
         if operacion in {"itinerario", "exportar_kml", "centralidad", "centralidad_aprox", "pagerank", "nueva_aerolinea"}:
             return operacion, [comandos[1]]
 
-        elif operacion in {"recorrer_mundo", "recorrer_mundo_aprox"}:
-            ciudad = " ".join(comandos[1:])
-            return operacion, [ciudad]
-
     raise Exception
 
 
 def procesar_archivos(archivo_aeropuertos, archivo_vuelos, dic_aeropuertos, aeropuertos_por_ciudad):
+    '''Recibe un archivo con información sobre aeropuertos y otro sobre vuelos,
+    ambos en formato csv y dos diccionarios de aeropuertos.
+    Guarda información sobre los aeropuertos en los diccionarios recibidos,
+    y devuelve además tres grafos donde cada vértice es un aeropuerto y
+    las aristas los vuelos entre ellos, con el peso correspondiente.
+    '''
     with open(archivo_aeropuertos) as aeropuertos:
         aeropuertos = csv.reader(aeropuertos)
         grafo_tiempo = Grafo()
@@ -312,7 +316,9 @@ def procesar_archivos(archivo_aeropuertos, archivo_vuelos, dic_aeropuertos, aero
 
     return grafo_tiempo, grafo_precio, grafo_vuelos
 
+
 def imprimir_camino(camino, separador=" "):
+    '''Imprime por salida estandar los elementos de camino, con el separador de por medio.'''
     for i in range(len(camino)-1):
         print(camino[i], end=separador)
     if camino:
@@ -320,6 +326,12 @@ def imprimir_camino(camino, separador=" "):
 
 
 def camino_minimo(grafo, aeropuertos, archivo_caminos, origen, destino, pesado=True):
+    '''Dado un grafo, una ciudad de origen y otra de destino
+    calcula y devuelve en forma de lista el camino mínimo entre esas ciudades.
+    Si el grafo es pesado, utiliza el algoritmo de Dijkstra.
+    Sino, utiliza un recorrido bfs.
+    '''
+
     distancia_min = float('inf')
     camino_min = []
 
@@ -383,6 +395,7 @@ def betweeness_centrality_aproximada(grafo, n):             # O(V+E) total
     lista_centralidad.sort(reverse=True)                  # O(V)
     imprimir_lista(lista_centralidad, n)                   # O(V)
 
+
 def pagerank(grafo, n):
     """ Calcula la centralidad por medio de PageRank e imprime los n 
     más importantes de orden mayor a menor.
@@ -429,6 +442,12 @@ def n_lugares(grafo, aeropuertos, origen, n):
 
 
 def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos, caminos_minimos):
+    '''Recibe un archivo existente con formato csv,
+    donde la primera linea incluye las ciudades que se desea visitar,
+    y las subsiguientes lineas indican qué ciudades deben ser visitadas antes de qué otras.
+    Imprime por salida estandar el orden en que deben ser visitadas y el recorrido que se debe realizar,
+    para que la cantidad de escalas sea mínima.
+    '''
     with open(archivo_itinerario) as itinerario:
         itinerario = csv.reader(itinerario)
 
@@ -452,6 +471,8 @@ def itinerario_cultural(archivo_itinerario, grafo_aeropuertos, aeropuertos, cami
 
 
 def exportar_kml(archivo, camino, aeropuertos):
+    '''Recibe un recorrido de aeropuertos, en forma de lista o tupla,
+    y genera a partir de este un archivo con formato kml con el nombre recibido por parámetro.'''
     inicio = '''<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2">
     <Document>
         <name>KML TP3</name>'''
@@ -490,6 +511,9 @@ def exportar_kml(archivo, camino, aeropuertos):
 
 
 def nueva_aerolinea(archivo, grafo_precio, grafo_tiempo, grafo_vuelos):
+    '''Dado los grafos recibidos por parámetro, genera un archivo con formato csv
+    con las rutas aéreas a seguir para que el costo total en dinero sea mínimo.'''
+
     mst = prim(grafo_precio)
 
     visitados = set()

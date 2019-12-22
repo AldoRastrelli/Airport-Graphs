@@ -4,6 +4,20 @@ from queue import Queue
 from pila import Pila
 
 
+def construir_camino(padres, orden, destino):
+    if destino not in padres:
+        return []
+    actual = destino
+    camino = [destino]
+
+    while padres[actual] is not None:
+        actual = padres[actual]
+        camino.append(actual)
+
+    camino.reverse()
+    return camino, orden[destino]
+
+
 def _orden_topologico_dfs(grafo, v, pila, visitados):
     visitados.add(v)
     for w in grafo.obtener_adyacentes(v):

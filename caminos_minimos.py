@@ -4,20 +4,6 @@ from heapq import heappop
 from grafo import Grafo
 
 
-def construir_camino(padres, orden, destino):
-    if destino not in padres:
-        return []
-    actual = destino
-    camino = [destino]
-
-    while padres[actual] is not None:
-        actual = padres[actual]
-        camino.append(actual)
-
-    camino.reverse()
-    return camino, orden[destino]
-
-
 def bfs(grafo, origen, destino=None):
     visitados = set()
     padre = {}

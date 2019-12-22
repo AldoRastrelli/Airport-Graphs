@@ -33,11 +33,7 @@ def main():
                 parametros.extend([camino_anterior, aeropuertos])
 
             camino_anterior = ejecutar_comando(
-<<<<<<< HEAD
-                operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, grafo_vuelos_dirigidos, aeropuertos_por_ciudad, caminos_minimos)
-=======
-                operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, aeropuertos_por_ciudad)
->>>>>>> c575d704eb229361d9bb32f09657216236dca926
+                operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, grafo_vuelos_dirigidos, aeropuertos_por_ciudad)
 
         except Exception as e:
             print(f"comando erróneo: '{comando}'")

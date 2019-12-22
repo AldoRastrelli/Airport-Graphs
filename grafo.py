@@ -32,10 +32,6 @@ class Grafo:
     def obtener_vertices(self):
         return list(self.vertices)
 
-<<<<<<< HEAD
-
-=======
->>>>>>> c575d704eb229361d9bb32f09657216236dca926
     def obtener_adyacentes(self, v):
         if v not in self.vertices:
             return []

@@ -138,11 +138,7 @@ def _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic):
     for v in vertices_aleatorios:
         sumatoria = 0
         for w in grafo.obtener_adyacentes(v):
-<<<<<<< HEAD
             sumatoria += pr_dic[w] / len(grafo.obtener_adyacentes(w))
-=======
-            sumatoria += pr_dic[w] / grafo.cantidad_adyacentes(w)
->>>>>>> c575d704eb229361d9bb32f09657216236dca926
 
         pr_aux[v] = (1 - D) / cant_vertices + D * sumatoria
 
@@ -197,15 +193,7 @@ def generar_camino_circular(hijo, origen):
     return camino
 
 
-<<<<<<< HEAD
-def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, grafo_vuelos_dirigidos, aeropuertos_por_ciudad, caminos):
-=======
-def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, aeropuertos_por_ciudad):
-    '''Ejecuta la función correspondiente a la operación recibida, con los parámetros correspondientes.
-    Devuelve una lista con el recorrido devuelto por esta función.
-    En caso de que no haya un recorrido, devuelve una lista vacía.
-    '''
->>>>>>> c575d704eb229361d9bb32f09657216236dca926
+def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, grafo_vuelos_dirigidos, aeropuertos_por_ciudad):
     camino = []
 
     if operacion == "camino_mas":

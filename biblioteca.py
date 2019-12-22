@@ -1,12 +1,13 @@
 import csv
 import json
 import random
+import sys
 from caminos_minimos import *
 from biblioteca_grafo import *
 from heapq import *
 from grafo import Grafo
 from aeropuerto import Aeropuerto
-MAX_ITER_PR = 100
+MAX_ITER_PR = 10
 D = 0.85
 SEP_CAMINO = ' -> '
 
@@ -138,7 +139,7 @@ def _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic):
     for v in vertices_aleatorios:
         sumatoria = 0
         for w in grafo.obtener_adyacentes(v):
-            sumatoria += pr_dic[w] / grafo.obtener_grado(w)
+            sumatoria += pr_dic[w] / len(grafo.obtener_adyacentes(w))
 
         pr_aux[v] = (1 - D) / cant_vertices + D * sumatoria
 
@@ -146,6 +147,7 @@ def _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic):
         pr_dic[v] = pr_aux[v]
 
     return _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones + 1, pr_dic)
+
 
 
 def _n_lugares(grafo, aerop_ciudad_origen, origen, n, hijo, visitados, actual):
@@ -193,7 +195,7 @@ def generar_camino_circular(hijo, origen):
     return camino
 
 
-def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, aeropuertos_por_ciudad, caminos):
+def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, grafo_vuelos_dirigidos, aeropuertos_por_ciudad, caminos):
     camino = []
 
     if operacion == "camino_mas":
@@ -219,7 +221,7 @@ def ejecutar_comando(operacion, parametros, grafo_tiempo, grafo_precio, grafo_vu
         betweeness_centrality_aproximada(grafo_vuelos, int(parametros[0]))
 
     elif operacion == "pagerank":
-        pagerank(grafo_vuelos, int(parametros[0]))
+        pagerank(grafo_vuelos_dirigidos, int(parametros[0]))
 
     elif operacion == "nueva_aerolinea":
         camino = nueva_aerolinea(
@@ -288,6 +290,7 @@ def procesar_archivos(archivo_aeropuertos, archivo_vuelos, dic_aeropuertos, aero
         grafo_tiempo = Grafo()
         grafo_precio = Grafo()
         grafo_vuelos = Grafo()
+        grafo_vuelos_dirigidos = Grafo()
 
         for ciudad, codigo_aeropuerto, latitud, longitud in aeropuertos:
             if ciudad in aeropuertos_por_ciudad:
@@ -301,6 +304,7 @@ def procesar_archivos(archivo_aeropuertos, archivo_vuelos, dic_aeropuertos, aero
             grafo_tiempo.agregar_vertice(aeropuerto)
             grafo_precio.agregar_vertice(aeropuerto)
             grafo_vuelos.agregar_vertice(aeropuerto)
+            grafo_vuelos_dirigidos.agregar_vertice(aeropuerto)
 
     with open(archivo_vuelos) as vuelos:
         vuelos = csv.reader(vuelos)
@@ -309,8 +313,9 @@ def procesar_archivos(archivo_aeropuertos, archivo_vuelos, dic_aeropuertos, aero
             grafo_tiempo.agregar_arista(origen, destino, float(tiempo))
             grafo_precio.agregar_arista(origen, destino, float(precio))
             grafo_vuelos.agregar_arista(origen, destino, float(cant_vuelos))
+            grafo_vuelos_dirigidos.agregar_arista(origen, destino, float(cant_vuelos))
 
-    return grafo_tiempo, grafo_precio, grafo_vuelos
+    return grafo_tiempo, grafo_precio, grafo_vuelos, grafo_vuelos_dirigidos
 
 def imprimir_camino(camino, separador=" "):
     for i in range(len(camino)-1):
@@ -391,17 +396,15 @@ def pagerank(grafo, n):
     vertices_aleatorios = generar_orden_aleatorio_vertices(grafo)
     pr_dic = {}
 
-    for v in vertices_aleatorios:
-        pr_dic[v] = 0
     iteraciones = 0
     cant_vertices = len(vertices_aleatorios)
+    for v in vertices_aleatorios:
+        pr_dic[v] = 0
 
     dic_pagerank = _pagerank(grafo, vertices_aleatorios,
                              cant_vertices, iteraciones, pr_dic)
-    print(dic_pagerank)
     lista_pagerank = pasar_dic_a_lista(dic_pagerank)
     lista_pagerank.sort(reverse=True)
-    print("\n",lista_pagerank)
     imprimir_lista(lista_pagerank, n)
 
 
@@ -421,7 +424,6 @@ def n_lugares(grafo, aeropuertos, origen, n):
         hijo = {}
         visitados = set()
         visitados.add(aeropuerto_origen)
-        print(f"Seguidilla: ")
         if _n_lugares(grafo, aeropuertos[origen], aeropuerto_origen, n, hijo, visitados, aeropuerto_origen):
             return generar_camino_circular(hijo, aeropuerto_origen)
 

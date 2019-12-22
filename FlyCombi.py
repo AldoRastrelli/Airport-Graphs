@@ -15,7 +15,7 @@ def main():
 
     aeropuertos = {}
     aeropuertos_por_ciudad = {}
-    grafo_tiempo, grafo_precio, grafo_vuelos = procesar_archivos(
+    grafo_tiempo, grafo_precio, grafo_vuelos, grafo_vuelos_dirigidos = procesar_archivos(
         archivo_aeropuertos, archivo_vuelos, aeropuertos, aeropuertos_por_ciudad)
 
     camino_anterior = []
@@ -36,7 +36,7 @@ def main():
                 parametros.extend([camino_anterior, aeropuertos])
 
             camino_anterior = ejecutar_comando(
-                operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, aeropuertos_por_ciudad, caminos_minimos)
+                operacion, parametros, grafo_tiempo, grafo_precio, grafo_vuelos, grafo_vuelos_dirigidos, aeropuertos_por_ciudad, caminos_minimos)
 
         except Exception as e:
             print(f"comando erróneo: '{comando}'")

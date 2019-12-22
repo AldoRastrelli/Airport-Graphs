@@ -18,11 +18,11 @@ class Grafo:
             self.grado[v] = 0
 
     def agregar_arista(self, v1, v2, peso=0):
-        self.vertices[v1][v2] = peso
+        self.vertices[v2][v1] = peso
         self.grado[v2] += peso
 
         if not self.dirigido:
-            self.vertices[v2][v1] = peso
+            self.vertices[v1][v2] = peso
             self.grado[v1] += peso
 
         else:
@@ -31,11 +31,6 @@ class Grafo:
     def obtener_vertices(self):
         return list(self.vertices)
 
-    #def obtener_aristas(self):
-    #    aristas = []
-    #    for v in self.obtener_vertices():
-    #        for w in self.obtener_adyacentes(v):
-    #            aristas.append( (v,w,self.obtener_peso(v,w) ))
 
     def obtener_adyacentes(self, v):
         if v not in self.vertices:

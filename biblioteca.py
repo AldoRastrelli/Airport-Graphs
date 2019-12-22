@@ -138,7 +138,7 @@ def _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic):
     for v in vertices_aleatorios:
         sumatoria = 0
         for w in grafo.obtener_adyacentes(v):
-            sumatoria += pr_dic[w] / grafo.obtener_grado(w)
+            sumatoria += pr_dic[w] / len(grafo.obtener_adyacentes(w))
 
         pr_aux[v] = (1 - D) / cant_vertices + D * sumatoria
 
@@ -398,10 +398,8 @@ def pagerank(grafo, n):
 
     dic_pagerank = _pagerank(grafo, vertices_aleatorios,
                              cant_vertices, iteraciones, pr_dic)
-    print(dic_pagerank)
     lista_pagerank = pasar_dic_a_lista(dic_pagerank)
     lista_pagerank.sort(reverse=True)
-    print("\n",lista_pagerank)
     imprimir_lista(lista_pagerank, n)
 
 
@@ -411,11 +409,12 @@ def n_lugares(grafo, aeropuertos, origen, n):
     Recibe un grafo, diccionario de sus aeropuertos, un número n de máximo de vértices
     a recorrer"""
 
-    if n < 3 and n != 1:
-        print("No se encontro recorrido")
-        return []
     if n == 1:
         return [origen]
+
+    if n < 3:
+        print("No se encontro recorrido")
+        return []
 
     for aeropuerto_origen in aeropuertos[origen]:
         hijo = {}

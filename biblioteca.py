@@ -148,14 +148,14 @@ def _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones, pr_dic):
     return _pagerank(grafo, vertices_aleatorios, cant_vertices, iteraciones + 1, pr_dic)
 
 
-def _n_lugares(grafo, aerop_ciudad_origen, origen, n, hijo, visitados, actual):
+def _n_lugares(grafo, aerop_ciudad_origen, origen, n, hijo, visitados, no_sirven, actual):
     """ Función auxiliar de n_lugares.
     Recibe un grafo, un vértice origen pertenenciente al grafo, un número n de máximo de vértices
     a recorrer, un diccionario de hijos, un set de visitados y un vértice actual"""
 
     if actual in visitados:
         return False
-
+    #print("no sirven: ",no_sirven)
     # Si mi lista de visitados tiene n-1 elementos, analizo el elemento actual
     # que aún no fue guardado a ver si me sirve. Si no, returneo False y elijo otro
     if len(visitados) == n-1:
@@ -166,18 +166,29 @@ def _n_lugares(grafo, aerop_ciudad_origen, origen, n, hijo, visitados, actual):
             hijo[actual] = None
             return True
         else:
+            if actual not in no_sirven:
+                no_sirven[actual] = set()
+            no_sirven[actual].add(len(visitados))
+            #print("no sirven: ",no_sirven)
             return False
 
     visitados.add(actual)
     for w in grafo.obtener_adyacentes(actual):
         if w in visitados or len(grafo.obtener_adyacentes(w)) == 1:
             continue
+        if w in no_sirven:
+            if len(visitados) in no_sirven[w]:
+                continue
         hijo[actual] = w
-        if _n_lugares(grafo, aerop_ciudad_origen, origen, n, hijo, visitados, w):
+        if _n_lugares(grafo, aerop_ciudad_origen, origen, n, hijo, visitados, no_sirven, w):
             return True
 
     visitados.remove(actual)
     hijo.pop(actual, None)
+    if actual not in no_sirven:
+        no_sirven[actual] = set()
+    no_sirven[actual].add(len(visitados))
+    #print("no sirven: ",no_sirven)
     return False
 
 
@@ -427,9 +438,10 @@ def n_lugares(grafo, aeropuertos, origen, n):
     lista_aerop.sort(reverse = True)
     
     for grado_aerop, aeropuerto_origen in lista_aerop:
+        no_sirven = {}
         hijo = {}
         visitados = set()
-        if _n_lugares(grafo, aeropuertos[origen], aeropuerto_origen, n, hijo, visitados, aeropuerto_origen):
+        if _n_lugares(grafo, aeropuertos[origen], aeropuerto_origen, n, hijo, visitados, no_sirven, aeropuerto_origen):
             return generar_camino_circular(hijo, aeropuerto_origen)
 
     print("No se encontro recorrido")
